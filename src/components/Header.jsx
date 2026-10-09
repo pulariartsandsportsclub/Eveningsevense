@@ -19,7 +19,7 @@ export default function Header() {
           <NavLink to="/" className="header-brand">
             <img src="/pulari-logo.png" alt="Pulari Arts and Sports Club" className="brand-logo" />
             <div className="brand-text">
-              <span className="brand-name">EveningPlay</span>
+              <span className="brand-name">Sevense Football Tournament</span>
               <span className="brand-sub">Pulari Club • Estd 1985</span>
             </div>
           </NavLink>
