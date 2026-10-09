@@ -1,0 +1,217 @@
+/* ===== LEADERBOARD STYLING ===== */
+.leaderboard-table {
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  animation: fadeInUp 0.4s ease forwards;
+  background: #FFFFFF;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+
+.lb-header-row,
+.lb-row {
+  display: grid;
+  grid-template-columns: 50px 1.8fr 140px 80px 70px 100px;
+  align-items: center;
+  padding: 14px 20px;
+  gap: 12px;
+  border-bottom: 1px solid var(--border);
+  transition: var(--transition-fast);
+}
+
+.lb-header-row {
+  background: var(--bg-tertiary);
+  border-bottom: 2px solid var(--border);
+}
+
+.lb-row:last-child {
+  border-bottom: none;
+}
+
+.lb-row:hover {
+  background: var(--surface-hover) !important;
+}
+
+.lb-row--ranked {
+  border-left: 3.5px solid transparent;
+}
+
+.lb-col {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Rank */
+.lb-col-rank {
+  justify-content: center;
+}
+
+.rank-label {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--text-muted);
+}
+
+/* Player */
+.lb-col-player {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.scorer-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1.5px solid;
+  display: grid;
+  place-items: center;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 13px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.scorer-name-wrap {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.scorer-name {
+  font-size: 14.5px;
+  font-weight: 800;
+  color: var(--text-primary);
+  text-transform: none;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.scorer-team-sub {
+  display: none;
+  font-size: 11.5px;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Team */
+.scorer-team-pill {
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  border: 1px solid;
+  text-transform: none;
+  letter-spacing: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+/* Goals */
+.lb-col-goals {
+  justify-content: center;
+}
+
+.goal-count {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--primary);
+}
+
+.goal-label, .assist-label {
+  font-size: 14px;
+}
+
+/* Assists */
+.lb-col-assists {
+  justify-content: center;
+}
+
+.assist-count {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+/* Bar */
+.perf-bar-track {
+  flex: 1;
+  height: 6px;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.perf-bar-fill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  transition: width 0.8s ease;
+}
+
+/* Responsive */
+@media (max-width: 860px) {
+  .lb-header-row,
+  .lb-row {
+    grid-template-columns: 44px 1.5fr 120px 70px 60px;
+  }
+  .lb-col-bar { display: none; }
+}
+
+@media (max-width: 600px) {
+  .lb-header-row,
+  .lb-row {
+    grid-template-columns: 36px 1fr 64px 44px;
+    padding: 10px 12px;
+    gap: 8px;
+  }
+
+  .lb-col-team { display: none; }
+
+  .scorer-team-sub {
+    display: block;
+  }
+
+  .scorer-name {
+    font-size: 13.5px;
+  }
+
+  .scorer-avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 11px;
+    border-radius: 8px;
+  }
+
+  .goal-count {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 400px) {
+  .lb-header-row,
+  .lb-row {
+    grid-template-columns: 30px 1fr 56px;
+    padding: 10px 10px;
+  }
+  .lb-col-assists { display: none; }
+}

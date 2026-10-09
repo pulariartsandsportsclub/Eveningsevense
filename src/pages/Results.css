@@ -1,0 +1,57 @@
+/* ===== RESULTS PAGE STYLING ===== */
+.results-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.results-filter {
+  overflow-x: auto;
+  flex-wrap: nowrap !important;
+  padding-bottom: 6px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.results-filter::-webkit-scrollbar {
+  display: none;
+}
+
+.fixture-group {
+  margin-bottom: 24px;
+  animation: fadeInUp 0.4s ease forwards;
+}
+
+.fixture-date-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.fixture-date-line {
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.fixture-date-label {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.fixture-group-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 14px;
+}
+
+@media (max-width: 640px) {
+  .fixture-group-cards {
+    grid-template-columns: 1fr;
+  }
+}
