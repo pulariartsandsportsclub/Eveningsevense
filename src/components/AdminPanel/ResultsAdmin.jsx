@@ -4,7 +4,7 @@ import {
   Trophy, Calendar, Clock, MapPin, Check, X, AlertTriangle,
   HelpCircle, Search, SlidersHorizontal, Flame, Zap, Plus, RefreshCw
 } from 'lucide-react';
-import { getProgressionTarget, getMatchWinner, parseStageInfo } from '../../utils/bracketProgression';
+import { getProgressionTarget, getMatchWinner, parseStageInfo, deduplicateFixturesList } from '../../utils/bracketProgression';
 import '../KnockoutBracket.css';
 import './AdminPanel.css';
 
@@ -200,7 +200,8 @@ export default function ResultsAdmin() {
 
   // Only consider fixtures where teams are known or scheduled
   const playableFixtures = useMemo(() => {
-    return fixtures.filter(f => f.homeTeam !== 'TBD' || f.awayTeam !== 'TBD');
+    const { deduplicatedFixtures } = deduplicateFixturesList(fixtures);
+    return deduplicatedFixtures.filter(f => f.homeTeam !== 'TBD' || f.awayTeam !== 'TBD');
   }, [fixtures]);
 
   // Sort with UPCOMING MATCHES FIRST, then LIVE, then POSTPONED, then COMPLETED
@@ -242,43 +243,47 @@ export default function ResultsAdmin() {
 
   // Bracket Structure builder for Results Knockout View
   const bracketPhases = useMemo(() => {
-    // Check if Round of 16 exists
-    const hasR16 = fixtures.some(f => {
-      const r = (f.round || '').toLowerCase();
-      return r.includes('16') || r.includes('r16');
-    });
+    // 1. Deduplicate fixtures so duplicate slot entries are cleanly merged
+    const { deduplicatedFixtures } = deduplicateFixturesList(fixtures);
 
-    const phaseConfigs = hasR16
-      ? [
-          { name: 'Round of 16', stage: 'r16', count: 8 },
-          { name: 'Quarter-Finals', stage: 'quarter', count: 4 },
-          { name: 'Semi-Finals', stage: 'semi', count: 2 },
-          { name: 'Final', stage: 'final', count: 1 },
-        ]
-      : [
-          { name: 'Quarter-Finals', stage: 'quarter', count: 4 },
-          { name: 'Semi-Finals', stage: 'semi', count: 2 },
-          { name: 'Final', stage: 'final', count: 1 },
-        ];
+    // 2. Identify active phases
+    const hasR16 = deduplicatedFixtures.some(f => parseStageInfo(f.round).stage === 'r16');
+    const hasQuarter = deduplicatedFixtures.some(f => parseStageInfo(f.round).stage === 'quarter');
+    const hasSemi = deduplicatedFixtures.some(f => parseStageInfo(f.round).stage === 'semi');
+
+    let phaseConfigs = [];
+    if (hasR16) {
+      phaseConfigs = [
+        { name: 'Round of 16', stage: 'r16', count: 8 },
+        { name: 'Quarter-Finals', stage: 'quarter', count: 4 },
+        { name: 'Semi-Finals', stage: 'semi', count: 2 },
+        { name: 'Final', stage: 'final', count: 1 },
+      ];
+    } else if (hasQuarter) {
+      phaseConfigs = [
+        { name: 'Quarter-Finals', stage: 'quarter', count: 4 },
+        { name: 'Semi-Finals', stage: 'semi', count: 2 },
+        { name: 'Final', stage: 'final', count: 1 },
+      ];
+    } else if (hasSemi) {
+      phaseConfigs = [
+        { name: 'Semi-Finals', stage: 'semi', count: 2 },
+        { name: 'Final', stage: 'final', count: 1 },
+      ];
+    } else {
+      phaseConfigs = [
+        { name: 'Final', stage: 'final', count: 1 },
+      ];
+    }
 
     return phaseConfigs.map((phaseConfig) => {
       // Find all matches matching this phase
-      const phaseMatches = fixtures.filter(f => {
-        const pIdx = getPhaseIndex(f.round);
-        if (hasR16) {
-          if (phaseConfig.stage === 'r16') return pIdx === 0;
-          if (phaseConfig.stage === 'quarter') return pIdx === 1;
-          if (phaseConfig.stage === 'semi') return pIdx === 2;
-          if (phaseConfig.stage === 'final') return pIdx === 3;
-        } else {
-          if (phaseConfig.stage === 'quarter') return pIdx === 1;
-          if (phaseConfig.stage === 'semi') return pIdx === 2;
-          if (phaseConfig.stage === 'final') return pIdx === 3;
-        }
-        return false;
+      const phaseMatches = deduplicatedFixtures.filter(f => {
+        const info = parseStageInfo(f.round);
+        return info.stage === phaseConfig.stage;
       });
 
-      // Sort by match number
+      // Sort strictly by match number
       const sorted = [...phaseMatches].sort((a, b) => {
         const infoA = parseStageInfo(a.round);
         const infoB = parseStageInfo(b.round);
@@ -288,10 +293,11 @@ export default function ResultsAdmin() {
       // Fill symmetrical slots so bracket connectors line up perfectly
       const slots = [];
       for (let i = 1; i <= phaseConfig.count; i++) {
+        // Strict match lookup by matchNum to prevent duplicate slot hijacking
         const existing = sorted.find(m => {
           const info = parseStageInfo(m.round);
           return info.matchNum === i;
-        }) || sorted[i - 1];
+        });
 
         if (existing) {
           slots.push(existing);

@@ -165,9 +165,13 @@ export async function upsertFixtureInDb(fixture) {
   `;
 }
 
-export async function saveFixturesBatchInDb(fixtures) {
+export async function saveFixturesBatchInDb(fixtures, replaceAll = false) {
   const sql = getDb();
-  if (!sql || !fixtures || fixtures.length === 0) return;
+  if (!sql) return;
+  if (replaceAll) {
+    await sql`DELETE FROM fixtures`;
+  }
+  if (!fixtures || fixtures.length === 0) return;
   for (const f of fixtures) {
     await upsertFixtureInDb(f);
   }
@@ -177,6 +181,12 @@ export async function deleteFixtureFromDb(id) {
   const sql = getDb();
   if (!sql) return;
   await sql`DELETE FROM fixtures WHERE id = ${id}`;
+}
+
+export async function clearResultsInDb() {
+  const sql = getDb();
+  if (!sql) return;
+  await sql`DELETE FROM results`;
 }
 
 // ===== RESULTS =====

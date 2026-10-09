@@ -85,7 +85,18 @@ export function parseStageInfo(roundName = '', matchIndexInRound = 0) {
     };
   }
 
-  // 5. Other / Third Place
+  // 5. Third Place Playoff
+  if (r.includes('third') || r.includes('3rd')) {
+    return {
+      stage: 'third',
+      stageLabel: 'Third Place Playoff',
+      matchNum: 1,
+      nextStage: null,
+      nextStageLabel: null,
+    };
+  }
+
+  // 6. Other / Custom
   return {
     stage: 'other',
     stageLabel: roundName || 'Knockout Match',
@@ -96,12 +107,104 @@ export function parseStageInfo(roundName = '', matchIndexInRound = 0) {
 }
 
 /**
+ * Returns canonical knockout slot key (e.g. 'r16_1'...'r16_8', 'quarter_1'...'quarter_4', 'semi_1'...'semi_2', 'final')
+ */
+export function getFixtureSlotKey(fixture, indexInRound = 0) {
+  if (!fixture) return 'unknown';
+  const info = parseStageInfo(fixture.round, indexInRound);
+  if (info.stage === 'final') return 'final';
+  if (info.stage === 'third') return 'third';
+  if (info.stage === 'r16' || info.stage === 'quarter' || info.stage === 'semi') {
+    return `${info.stage}_${info.matchNum}`;
+  }
+  return `other_${(fixture.round || 'match').toLowerCase().replace(/\s+/g, '_')}`;
+}
+
+/**
+ * Quality heuristic to keep the most informative match record when deduplicating
+ */
+export function getFixtureQualityScore(f) {
+  if (!f) return 0;
+  let score = 0;
+  if (f.status === 'completed') score += 1000;
+  else if (f.status === 'live') score += 500;
+  else if (f.status === 'postponed') score += 100;
+  else score += 50;
+
+  if (f.homeScore !== undefined && f.homeScore !== null && f.homeScore !== '') score += 200;
+  if (f.awayScore !== undefined && f.awayScore !== null && f.awayScore !== '') score += 200;
+  if (f.homePenalty !== undefined && f.homePenalty !== null && f.homePenalty !== '') score += 50;
+  if (f.awayPenalty !== undefined && f.awayPenalty !== null && f.awayPenalty !== '') score += 50;
+
+  if (f.homeTeam && f.homeTeam !== 'TBD' && !f.homeTeam.startsWith('Winner')) score += 100;
+  if (f.awayTeam && f.awayTeam !== 'TBD' && !f.awayTeam.startsWith('Winner')) score += 100;
+
+  if (Array.isArray(f.scorers) && f.scorers.length > 0) score += 50;
+  if (f.date && f.date !== 'TBD') score += 10;
+  if (f.venue && f.venue.trim()) score += 5;
+
+  return score;
+}
+
+/**
+ * Deduplicate fixtures list so every knockout bracket slot has at most ONE match.
+ * Returns { deduplicatedFixtures, removedFixtureIds }
+ */
+export function deduplicateFixturesList(fixtures = []) {
+  if (!Array.isArray(fixtures) || fixtures.length === 0) {
+    return { deduplicatedFixtures: [], removedFixtureIds: [] };
+  }
+
+  // Group by stage to compute natural indices for round labels without numbers
+  const stageGroups = { r16: [], quarter: [], semi: [], final: [], third: [], other: [] };
+  fixtures.forEach((f, origIdx) => {
+    const info = parseStageInfo(f.round, 0);
+    const stage = stageGroups[info.stage] ? info.stage : 'other';
+    stageGroups[stage].push({ fixture: f, origIdx });
+  });
+
+  const slotMap = new Map();
+  const removedFixtureIds = [];
+
+  Object.keys(stageGroups).forEach(stage => {
+    stageGroups[stage].forEach((item, stageIdx) => {
+      const slotKey = getFixtureSlotKey(item.fixture, stageIdx);
+      if (!slotMap.has(slotKey)) {
+        slotMap.set(slotKey, item.fixture);
+      } else {
+        const existing = slotMap.get(slotKey);
+        const existingScore = getFixtureQualityScore(existing);
+        const newScore = getFixtureQualityScore(item.fixture);
+
+        if (newScore > existingScore) {
+          if (existing.id) removedFixtureIds.push(existing.id);
+          slotMap.set(slotKey, item.fixture);
+        } else {
+          if (item.fixture.id) removedFixtureIds.push(item.fixture.id);
+        }
+      }
+    });
+  });
+
+  const stageOrder = { r16: 1, quarter: 2, semi: 3, third: 4, final: 5, other: 6 };
+  const deduplicatedFixtures = Array.from(slotMap.values()).sort((a, b) => {
+    const infoA = parseStageInfo(a.round);
+    const infoB = parseStageInfo(b.round);
+    const ordA = stageOrder[infoA.stage] || 99;
+    const ordB = stageOrder[infoB.stage] || 99;
+    if (ordA !== ordB) return ordA - ordB;
+    return infoA.matchNum - infoB.matchNum;
+  });
+
+  return { deduplicatedFixtures, removedFixtureIds };
+}
+
+/**
  * Calculates progression target details for a given match
  */
 export function getProgressionTarget(match, allFixtures = []) {
   if (!match) return null;
 
-  // Determine match number within round
   let matchIndexInRound = 0;
   if (Array.isArray(allFixtures) && allFixtures.length > 0) {
     const sameStageMatches = allFixtures.filter(f => {
@@ -133,69 +236,63 @@ export function getProgressionTarget(match, allFixtures = []) {
     targetMatchNum,
     targetSlot,
     targetRoundLabel,
+    targetSlotKey: stageInfo.nextStage === 'final' ? 'final' : `${stageInfo.nextStage}_${targetMatchNum}`,
     description: `${targetRoundLabel} (${targetSlot === 'homeTeam' ? 'Home' : 'Away'})`,
   };
 }
 
 /**
- * Executes winner progression across the fixtures list
- * Returns updated fixtures array and list of modified/created next matches
+ * Executes winner progression across the fixtures list.
+ * Deduplicates in place, updates existing matches, never creates spurious duplicates.
  */
 export function processKnockoutProgression(fixtures = [], updatedMatch, prevMatch, genId) {
-  const resultFixtures = [...fixtures];
+  // 1. Initial deduplication safety pass
+  const cleanInit = deduplicateFixturesList(fixtures);
+  let resultFixtures = [...cleanInit.deduplicatedFixtures];
+  const removedFixtureIds = [...cleanInit.removedFixtureIds];
   const nextMatchesToSave = [];
   let toastMessage = null;
 
   const prevWinner = getMatchWinner(prevMatch);
   const newWinner = getMatchWinner(updatedMatch);
 
-  // If winner has not changed, return early
-  if (prevWinner === newWinner && updatedMatch.status === prevMatch?.status) {
-    return { fixtures: resultFixtures, nextMatchesToSave, toastMessage };
+  // If winner has not changed and match status hasn't toggled completion, return early
+  if (prevWinner === newWinner && updatedMatch?.status === prevMatch?.status) {
+    return { fixtures: resultFixtures, nextMatchesToSave, toastMessage, removedFixtureIds };
   }
 
   const progression = getProgressionTarget(updatedMatch, resultFixtures);
   if (!progression) {
-    return { fixtures: resultFixtures, nextMatchesToSave, toastMessage };
+    return { fixtures: resultFixtures, nextMatchesToSave, toastMessage, removedFixtureIds };
   }
 
-  const { targetStage, targetMatchNum, targetSlot, targetRoundLabel } = progression;
+  const { targetStage, targetMatchNum, targetSlot, targetRoundLabel, targetSlotKey } = progression;
 
-  // Look for existing target match
+  // Search for target match by nextMatchId, slot key, or stage info
   let nextMatchIdx = -1;
-
-  // 1. Check if updatedMatch explicitly pointed to a match
   if (updatedMatch.nextMatchId) {
     nextMatchIdx = resultFixtures.findIndex(f => f.id === updatedMatch.nextMatchId);
   }
 
-  // 2. Search by stage and match number
-  if (nextMatchIdx === -1) {
-    const nextStageMatches = resultFixtures
-      .map((f, idx) => ({ fixture: f, origIdx: idx, info: parseStageInfo(f.round) }))
-      .filter(item => item.info.stage === targetStage);
-
-    if (targetStage === 'final') {
-      if (nextStageMatches.length > 0) {
-        nextMatchIdx = nextStageMatches[0].origIdx;
-      }
-    } else {
-      const matchWithNum = nextStageMatches.find(item => item.info.matchNum === targetMatchNum);
-      if (matchWithNum) {
-        nextMatchIdx = matchWithNum.origIdx;
-      } else if (nextStageMatches[targetMatchNum - 1]) {
-        nextMatchIdx = nextStageMatches[targetMatchNum - 1].origIdx;
-      }
-    }
+  if (nextMatchIdx === -1 && targetSlotKey) {
+    nextMatchIdx = resultFixtures.findIndex((f, idx) => getFixtureSlotKey(f, idx) === targetSlotKey);
   }
 
-  // Handle case: A winner emerged (or winner changed)
+  if (nextMatchIdx === -1) {
+    nextMatchIdx = resultFixtures.findIndex(f => {
+      const info = parseStageInfo(f.round);
+      if (targetStage === 'final') return info.stage === 'final';
+      return info.stage === targetStage && info.matchNum === targetMatchNum;
+    });
+  }
+
+  // Handle Winner Progression
   if (newWinner) {
     if (nextMatchIdx !== -1) {
-      // Update existing fixture
+      // IN-PLACE UPDATE ONLY
       const existingNext = { ...resultFixtures[nextMatchIdx] };
 
-      // If previous winner was in the other slot, clear it
+      // Clear former winner if placed in opposing slot
       if (prevWinner && existingNext.homeTeam === prevWinner && targetSlot !== 'homeTeam') {
         existingNext.homeTeam = 'TBD';
       }
@@ -207,9 +304,9 @@ export function processKnockoutProgression(fixtures = [], updatedMatch, prevMatc
       resultFixtures[nextMatchIdx] = existingNext;
       nextMatchesToSave.push(existingNext);
 
-      toastMessage = `⚡ ${newWinner} advanced to ${targetRoundLabel}!`;
+      toastMessage = `⚡ ${newWinner} advanced to ${existingNext.round || targetRoundLabel}!`;
     } else {
-      // Auto-create next round fixture
+      // Create new match only if the stage doesn't already exist
       let nextDate = updatedMatch.date || new Date().toISOString().split('T')[0];
       try {
         const d = new Date(nextDate);
@@ -236,17 +333,26 @@ export function processKnockoutProgression(fixtures = [], updatedMatch, prevMatc
       toastMessage = `⚡ ${newWinner} advanced! Auto-created ${targetRoundLabel}.`;
     }
   } else if (prevWinner && !newWinner) {
-    // Result was undone or match marked upcoming/live
+    // Match was reset / uncompleted
     if (nextMatchIdx !== -1) {
       const existingNext = { ...resultFixtures[nextMatchIdx] };
       if (existingNext[targetSlot] === prevWinner) {
         existingNext[targetSlot] = 'TBD';
         resultFixtures[nextMatchIdx] = existingNext;
         nextMatchesToSave.push(existingNext);
-        toastMessage = `Removed ${prevWinner} from ${targetRoundLabel} (match uncompleted).`;
+        toastMessage = `Removed ${prevWinner} from ${existingNext.round || targetRoundLabel}.`;
       }
     }
   }
 
-  return { fixtures: resultFixtures, nextMatchesToSave, toastMessage };
+  // Final deduplication safety pass
+  const cleanFinal = deduplicateFixturesList(resultFixtures);
+  resultFixtures = cleanFinal.deduplicatedFixtures;
+  if (cleanFinal.removedFixtureIds.length > 0) {
+    cleanFinal.removedFixtureIds.forEach(id => {
+      if (!removedFixtureIds.includes(id)) removedFixtureIds.push(id);
+    });
+  }
+
+  return { fixtures: resultFixtures, nextMatchesToSave, toastMessage, removedFixtureIds };
 }

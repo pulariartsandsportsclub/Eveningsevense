@@ -14,9 +14,14 @@ import {
   upsertFinanceInDb,
   deleteFinanceFromDb,
   clearAllDatabaseData,
+  clearResultsInDb,
   testDbConnection
 } from '../services/neonDb';
-import { processKnockoutProgression } from '../utils/bracketProgression';
+import {
+  processKnockoutProgression,
+  deduplicateFixturesList,
+  getFixtureSlotKey
+} from '../utils/bracketProgression';
 
 const TournamentContext = createContext(null);
 
@@ -115,9 +120,16 @@ export function TournamentProvider({ children }) {
 
       const dbData = await fetchAllTournamentDataFromDb();
       if (dbData) {
+        const { deduplicatedFixtures, removedFixtureIds } = deduplicateFixturesList(dbData.fixtures || []);
+        if (removedFixtureIds.length > 0) {
+          removedFixtureIds.forEach(rId => {
+            deleteFixtureFromDb(rId).catch(e => console.error('Error cleaning duplicate fixture:', e));
+          });
+        }
+
         setData({
           teams: dbData.teams || [],
-          fixtures: dbData.fixtures || [],
+          fixtures: deduplicatedFixtures,
           results: dbData.results || [],
           scorers: dbData.scorers || [],
           finances: dbData.finances || [],
@@ -351,16 +363,23 @@ export function TournamentProvider({ children }) {
         });
       }
 
-      const finalFixtures = replaceExisting
-        ? newFixtures
-        : [...prev.fixtures, ...newFixtures];
+      const { deduplicatedFixtures: finalFixtures } = deduplicateFixturesList(
+        replaceExisting ? newFixtures : [...prev.fixtures, ...newFixtures]
+      );
 
-      saveFixturesBatchInDb(finalFixtures).catch(e => console.error('Error saving fixtures to Neon:', e));
-      showToast(`🏆 Generated ${newFixtures.length} tournament bracket fixtures (${bracketSize} Teams setup)!`);
+      if (replaceExisting) {
+        clearResultsInDb().catch(e => console.error('Error clearing results in Neon:', e));
+        saveFixturesBatchInDb(finalFixtures, true).catch(e => console.error('Error replacing fixtures in Neon:', e));
+      } else {
+        saveFixturesBatchInDb(finalFixtures, false).catch(e => console.error('Error saving fixtures to Neon:', e));
+      }
+
+      showToast(`🏆 Generated ${finalFixtures.length} tournament bracket fixtures (${bracketSize} Teams setup)!`);
 
       return {
         ...prev,
         fixtures: finalFixtures,
+        results: replaceExisting ? [] : prev.results,
       };
     });
   }, [showToast]);
@@ -417,25 +436,44 @@ export function TournamentProvider({ children }) {
 
   // ===== Fixtures =====
   const addFixture = useCallback((fixture) => {
-    const newFix = { ...fixture, id: genId(), status: fixture.status || 'upcoming' };
     setData(prev => {
-      let fixtures = [...prev.fixtures, newFix];
-      const { fixtures: progressedFixtures, nextMatchesToSave, toastMessage } = processKnockoutProgression(
+      const tempFix = { ...fixture, id: fixture.id || genId(), status: fixture.status || 'upcoming' };
+      const slotKey = getFixtureSlotKey(tempFix);
+      const existingMatch = prev.fixtures.find((f, idx) => getFixtureSlotKey(f, idx) === slotKey);
+
+      let fixtures;
+      let targetFix;
+
+      if (existingMatch) {
+        // Slot already exists: update in-place instead of creating a duplicate match!
+        targetFix = { ...existingMatch, ...fixture };
+        fixtures = prev.fixtures.map(f => f.id === existingMatch.id ? targetFix : f);
+      } else {
+        targetFix = tempFix;
+        fixtures = [...prev.fixtures, targetFix];
+      }
+
+      const { fixtures: progressedFixtures, nextMatchesToSave, toastMessage, removedFixtureIds } = processKnockoutProgression(
         fixtures,
-        newFix,
-        null,
+        targetFix,
+        existingMatch || null,
         genId
       );
       fixtures = progressedFixtures;
 
-      upsertFixtureInDb(newFix).catch(e => console.error('Error adding fixture in Neon:', e));
+      upsertFixtureInDb(targetFix).catch(e => console.error('Error adding fixture in Neon:', e));
       if (nextMatchesToSave && nextMatchesToSave.length > 0) {
         nextMatchesToSave.forEach(m => {
           upsertFixtureInDb(m).catch(e => console.error('Error saving progressed match to Neon:', e));
         });
       }
+      if (removedFixtureIds && removedFixtureIds.length > 0) {
+        removedFixtureIds.forEach(rId => {
+          deleteFixtureFromDb(rId).catch(e => console.error('Error cleaning duplicate fixture:', e));
+        });
+      }
 
-      showToast(toastMessage || `Knockout Fixture added: ${fixture.homeTeam} vs ${fixture.awayTeam}`);
+      showToast(toastMessage || `Knockout Fixture saved: ${targetFix.homeTeam} vs ${targetFix.awayTeam}`);
       return {
         ...prev,
         fixtures,
@@ -454,13 +492,19 @@ export function TournamentProvider({ children }) {
       fixtures[matchIdx] = updatedMatch;
 
       // Automatic Knockout Winner Progression across tournament rounds
-      const { fixtures: progressedFixtures, nextMatchesToSave, toastMessage } = processKnockoutProgression(
+      const { fixtures: progressedFixtures, nextMatchesToSave, toastMessage, removedFixtureIds } = processKnockoutProgression(
         fixtures,
         updatedMatch,
         prevMatch,
         genId
       );
       fixtures = progressedFixtures;
+
+      if (removedFixtureIds && removedFixtureIds.length > 0) {
+        removedFixtureIds.forEach(rId => {
+          deleteFixtureFromDb(rId).catch(e => console.error('Error cleaning duplicate fixture:', e));
+        });
+      }
 
       // Synchronize results array
       let results = [...(prev.results || [])].filter(r => r.id !== id && r.fixtureId !== id);

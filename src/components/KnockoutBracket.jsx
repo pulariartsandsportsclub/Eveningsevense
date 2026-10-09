@@ -1,17 +1,6 @@
 import { useTournament } from '../context/TournamentContext';
+import { deduplicateFixturesList, parseStageInfo } from '../utils/bracketProgression';
 import './KnockoutBracket.css';
-
-function getPhaseIndex(roundName) {
-  const r = (roundName || '').toLowerCase();
-  if (r.includes('16')) return 0;
-  if (r.includes('quarter') || r.includes('qf')) return 1;
-  if (r.includes('semi') || r.includes('sf')) return 2;
-  if (r.includes('third')) return -1; // Ignore 3rd place for main bracket
-  if (r.includes('final')) return 3;
-  return 0;
-}
-
-const PHASE_NAMES = ['Round of 16', 'Quarter-Finals', 'Semi-Finals', 'Final'];
 
 function BracketMatch({ match }) {
   const isCompleted = match.status === 'completed';
@@ -102,28 +91,40 @@ export default function KnockoutBracket() {
     );
   }
 
-  // Group by phase
-  const phases = [[], [], [], []]; // 4 phases: R16, QF, SF, Final
+  // 1. Deduplicate fixtures so duplicate slot entries are cleanly merged
+  const { deduplicatedFixtures } = deduplicateFixturesList(fixtures);
 
-  fixtures.forEach(m => {
-    const pIdx = getPhaseIndex(m.round);
-    if (pIdx >= 0 && pIdx < 4) {
-      phases[pIdx].push(m);
-    }
-  });
+  // 2. Identify active stages present in this tournament
+  const hasR16 = deduplicatedFixtures.some(f => parseStageInfo(f.round).stage === 'r16');
+  const hasQuarter = deduplicatedFixtures.some(f => parseStageInfo(f.round).stage === 'quarter');
+  const hasSemi = deduplicatedFixtures.some(f => parseStageInfo(f.round).stage === 'semi');
 
-  // Preserve tournament tree ordering by fixture ID (f1-f8, f9-f12, f13-f14, f15)
-  // or by natural index so tree lines connect accurately
-  const activePhases = phases.map((matches, i) => {
-    const sorted = [...matches].sort((a, b) => {
-      const numA = parseInt((a.id || '').replace(/\D/g, ''), 10) || 0;
-      const numB = parseInt((b.id || '').replace(/\D/g, ''), 10) || 0;
-      return numA - numB;
-    });
+  const phaseDefinitions = [];
+  if (hasR16) {
+    phaseDefinitions.push({ name: 'Round of 16', stage: 'r16' });
+  }
+  if (hasQuarter || hasR16) {
+    phaseDefinitions.push({ name: 'Quarter-Finals', stage: 'quarter' });
+  }
+  if (hasSemi || hasQuarter || hasR16) {
+    phaseDefinitions.push({ name: 'Semi-Finals', stage: 'semi' });
+  }
+  phaseDefinitions.push({ name: 'Final', stage: 'final' });
+
+  // 3. Build active phases sorted by match number
+  const activePhases = phaseDefinitions.map(phaseDef => {
+    const matches = deduplicatedFixtures
+      .filter(f => parseStageInfo(f.round).stage === phaseDef.stage)
+      .sort((a, b) => {
+        const infoA = parseStageInfo(a.round);
+        const infoB = parseStageInfo(b.round);
+        return infoA.matchNum - infoB.matchNum;
+      });
 
     return {
-      name: PHASE_NAMES[i],
-      matches: sorted,
+      name: phaseDef.name,
+      stage: phaseDef.stage,
+      matches,
       isEmpty: matches.length === 0,
     };
   });

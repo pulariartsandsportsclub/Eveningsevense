@@ -5,7 +5,7 @@ import {
   ArrowLeftRight, Trophy, AlertTriangle, CalendarDays,
   Shuffle, Zap
 } from 'lucide-react';
-import { getProgressionTarget, getMatchWinner } from '../../utils/bracketProgression';
+import { getProgressionTarget, getMatchWinner, deduplicateFixturesList } from '../../utils/bracketProgression';
 import './AdminPanel.css';
 
 const EMPTY_FORM = {
@@ -197,7 +197,8 @@ export default function FixturesAdmin() {
     onChange: (ev) => setForm(p => ({ ...p, [key]: ev.target.value })),
   });
 
-  const sortedFixtures = [...fixtures].sort((a, b) => new Date(`${a.date}T${a.time}`) - new Date(`${b.date}T${b.time}`));
+  const { deduplicatedFixtures: cleanFixtures } = deduplicateFixturesList(fixtures);
+  const sortedFixtures = [...cleanFixtures].sort((a, b) => new Date(`${a.date}T${a.time}`) - new Date(`${b.date}T${b.time}`));
 
   const displayedFixtures = sortedFixtures.filter(f => {
     if (filterRound === 'all') return true;
