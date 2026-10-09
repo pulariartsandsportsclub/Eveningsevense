@@ -5,15 +5,15 @@ import { Link } from 'react-router-dom';
 import './Dashboard.css';
 
 export default function Dashboard() {
-  const { teams, fixtures, results, scorers } = useTournament();
+  const { teams = [], fixtures = [], results = [], scorers = [] } = useTournament();
 
-  const latestResult = [...results].sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+  const latestResult = results.length > 0 ? [...results].sort((a, b) => new Date(b.date) - new Date(a.date))[0] : null;
   const upcomingFixtures = fixtures
     .filter(f => f.status === 'upcoming')
-    .sort((a, b) => new Date(`${a.date}T${a.time}`) - new Date(`${b.date}T${b.time}`));
-  const nextFixture = upcomingFixtures[0];
-  const topScorers = [...scorers].sort((a, b) => b.goals - a.goals).slice(0, 3);
-  const totalGoals = results.reduce((sum, r) => sum + r.homeScore + r.awayScore, 0);
+    .sort((a, b) => new Date(`${a.date}T${a.time || '00:00'}`) - new Date(`${b.date}T${b.time || '00:00'}`));
+  const nextFixture = upcomingFixtures[0] || null;
+  const topScorers = scorers.length > 0 ? [...scorers].sort((a, b) => b.goals - a.goals).slice(0, 3) : [];
+  const totalGoals = results.reduce((sum, r) => sum + (Number(r.homeScore) || 0) + (Number(r.awayScore) || 0), 0);
   const liveCount = fixtures.filter(f => f.status === 'live').length;
 
   return (

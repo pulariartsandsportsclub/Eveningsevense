@@ -1,5 +1,7 @@
 import { NavLink } from 'react-router-dom';
-import { Trophy, Users, Calendar, CheckCircle, BarChart2 } from 'lucide-react';
+import { Trophy, Users, Calendar, CheckCircle, BarChart2, Settings, Database, RefreshCw } from 'lucide-react';
+import { useTournament } from '../context/TournamentContext';
+import { useAuth } from '../context/AuthContext';
 import './Header.css';
 
 const NAV_ITEMS = [
@@ -8,9 +10,22 @@ const NAV_ITEMS = [
   { to: '/fixtures', label: 'Fixtures', icon: Calendar },
   { to: '/results', label: 'Results', icon: CheckCircle },
   { to: '/leaderboard', label: 'Leaderboard', icon: BarChart2 },
+  { to: '/admin', label: 'Admin', icon: Settings },
 ];
 
 export default function Header() {
+  const { dbStatus, refreshDb } = useTournament();
+  const { isAuthenticated } = useAuth();
+
+  const getStatusText = () => {
+    switch (dbStatus) {
+      case 'connected': return 'Neon DB Live';
+      case 'syncing': return 'Syncing...';
+      case 'connecting': return 'Connecting...';
+      default: return 'Offline Mode';
+    }
+  };
+
   return (
     <>
       <header className="header">
@@ -24,19 +39,39 @@ export default function Header() {
             </div>
           </NavLink>
 
-          <nav className="header-nav">
-            {NAV_ITEMS.map(({ to, label, icon: Icon, end }) => (
-              <NavLink
-                key={to}
-                to={to}
-                end={end}
-                className={({ isActive }) => `nav-link ${isActive ? 'nav-link--active' : ''}`}
-              >
-                <Icon size={16} />
-                <span>{label}</span>
-              </NavLink>
-            ))}
-          </nav>
+          <div className="header-right">
+            {/* Database Live Status Badge */}
+            <button
+              type="button"
+              className={`db-status-badge db-status-${dbStatus}`}
+              onClick={refreshDb}
+              title={`Neon PostgreSQL: ${getStatusText()} (Click to Sync)`}
+            >
+              <Database size={13} className="db-icon" />
+              <span className="db-pulse-dot" />
+              <span className="db-status-label">{getStatusText()}</span>
+              {dbStatus === 'syncing' ? (
+                <RefreshCw size={11} className="db-sync-spin" />
+              ) : null}
+            </button>
+
+            <nav className="header-nav">
+              {NAV_ITEMS.map(({ to, label, icon: Icon, end }) => (
+                <NavLink
+                  key={to}
+                  to={to}
+                  end={end}
+                  className={({ isActive }) => `nav-link ${isActive ? 'nav-link--active' : ''}`}
+                >
+                  <Icon size={16} />
+                  <span>{label}</span>
+                  {to === '/admin' && isAuthenticated && (
+                    <span className="admin-active-indicator" title="Admin logged in" />
+                  )}
+                </NavLink>
+              ))}
+            </nav>
+          </div>
         </div>
       </header>
 
@@ -49,8 +84,11 @@ export default function Header() {
             end={end}
             className={({ isActive }) => `mobile-nav-item ${isActive ? 'mobile-nav-item--active' : ''}`}
           >
-            <div className="mobile-nav-icon-wrap">
+            <div className="mobile-nav-icon-wrap" style={{ position: 'relative' }}>
               <Icon size={19} />
+              {to === '/admin' && isAuthenticated && (
+                <span className="mobile-admin-active-dot" />
+              )}
             </div>
             <span className="mobile-nav-label">{label}</span>
           </NavLink>

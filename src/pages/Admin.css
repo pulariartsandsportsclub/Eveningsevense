@@ -1,0 +1,385 @@
+/* ===== DEDICATED ADMIN PAGE STYLING ===== */
+
+.admin-page {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 32px 24px 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ===== HERO HEADER ===== */
+.admin-hero {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 28px 32px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+}
+
+.admin-hero-left {
+  max-width: 720px;
+}
+
+.admin-hero-badge-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.admin-hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0, 155, 98, 0.1);
+  color: var(--primary);
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 4px 10px;
+  border-radius: var(--radius-full, 9999px);
+}
+
+.admin-user-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--surface-hover);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: var(--radius-full, 9999px);
+}
+
+.admin-role-tag {
+  font-size: 10px;
+  background: var(--primary);
+  color: #FFFFFF;
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  text-transform: uppercase;
+  font-weight: 800;
+}
+
+.admin-hero .page-title {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.03em;
+  margin: 0 0 6px 0;
+}
+
+.admin-hero .page-subtitle {
+  font-size: 14.5px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.admin-hero-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.btn-logout {
+  color: var(--text-secondary);
+}
+
+.btn-logout:hover {
+  background: rgba(229, 62, 62, 0.08) !important;
+  color: #e53e3e !important;
+  border-color: rgba(229, 62, 62, 0.3) !important;
+}
+
+.btn-danger-outline {
+  border-color: rgba(229, 62, 62, 0.3) !important;
+  color: #e53e3e !important;
+}
+
+.btn-danger-outline:hover {
+  background: rgba(229, 62, 62, 0.08) !important;
+  border-color: #e53e3e !important;
+}
+
+/* ===== VITAL METRICS RIBBON ===== */
+.admin-metrics-ribbon {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 14px;
+}
+
+.admin-metric-pill {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02);
+}
+
+.metric-icon-wrap {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.metric-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.metric-num {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.metric-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  margin-top: 2px;
+}
+
+/* ===== NAVIGATION TABS ===== */
+.admin-tabs-nav-container {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+}
+
+.admin-tabs-nav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.admin-tabs-nav::-webkit-scrollbar {
+  display: none;
+}
+
+.admin-nav-tab {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 12px 20px;
+  border-radius: var(--radius-lg);
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.admin-nav-tab:hover {
+  color: var(--text-primary);
+  background: var(--surface-hover);
+}
+
+.admin-nav-tab--active {
+  background: var(--primary) !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 4px 14px rgba(0, 155, 98, 0.22);
+}
+
+.tab-count-badge {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: var(--radius-full, 9999px);
+  background: var(--surface-hover);
+  color: var(--text-muted);
+}
+
+.tab-count-badge.badge-active {
+  background: rgba(255, 255, 255, 0.22);
+  color: #FFFFFF;
+}
+
+/* ===== TAB WORKSPACE ===== */
+.admin-tab-workspace {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 28px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+  min-height: 500px;
+}
+
+/* ===== DIALOG OVERLAY ===== */
+.admin-dialog-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.admin-confirm-dialog {
+  background: var(--surface);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border);
+  padding: 28px;
+  width: 100%;
+  max-width: 440px;
+  text-align: center;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+}
+
+.dialog-warn-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: rgba(229, 62, 62, 0.12);
+  color: #e53e3e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+}
+
+.admin-confirm-dialog h3 {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.admin-confirm-dialog p {
+  font-size: 13.5px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-bottom: 24px;
+}
+
+.dialog-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+/* Password Change Modal */
+.admin-password-modal {
+  background: var(--surface);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border);
+  padding: 24px;
+  width: 100%;
+  max-width: 440px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+}
+
+.password-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.password-modal-header h3 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.password-modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.password-alert {
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  font-size: 12.5px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.password-alert.success {
+  background: rgba(0, 155, 98, 0.1);
+  color: #008753;
+  border: 1px solid rgba(0, 155, 98, 0.25);
+}
+
+.password-alert.error {
+  background: rgba(229, 62, 62, 0.1);
+  color: #c53030;
+  border: 1px solid rgba(229, 62, 62, 0.25);
+}
+
+/* Responsive Breakpoints */
+@media (max-width: 1024px) {
+  .admin-metrics-ribbon {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-page {
+    padding: 20px 14px 90px;
+  }
+
+  .admin-hero {
+    padding: 20px;
+  }
+
+  .admin-hero .page-title {
+    font-size: 24px;
+  }
+
+  .admin-metrics-ribbon {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-tab-workspace {
+    padding: 16px;
+  }
+
+  .admin-nav-tab {
+    padding: 10px 14px;
+    font-size: 13px;
+  }
+}

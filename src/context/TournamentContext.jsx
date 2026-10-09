@@ -1,5 +1,21 @@
-// Tournament Context — Central state + localStorage persistence (Knockout Format)
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+// Tournament Context — Neon PostgreSQL + LocalStorage Offline Cache (Knockout Format + Finances)
+import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import {
+  fetchAllTournamentDataFromDb,
+  upsertTeamInDb,
+  deleteTeamFromDb,
+  upsertFixtureInDb,
+  saveFixturesBatchInDb,
+  deleteFixtureFromDb,
+  upsertResultInDb,
+  deleteResultFromDb,
+  upsertScorerInDb,
+  deleteScorerFromDb,
+  upsertFinanceInDb,
+  deleteFinanceFromDb,
+  clearAllDatabaseData,
+  testDbConnection
+} from '../services/neonDb';
 
 const TournamentContext = createContext(null);
 
@@ -31,89 +47,35 @@ function getNextKnockoutRound(fixtures) {
   return 'Final';
 }
 
-// ===== SEED DATA (Knockout Format — No Groups) =====
-const SEED_DATA = {
-  teams: [
-    { id: 't1', name: 'Real Madrid', badge: '#FFFFFF', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, points: 0 },
-    { id: 't2', name: 'Barcelona', badge: '#A50044', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, points: 0 },
-    { id: 't3', name: 'Bayern Munich', badge: '#DC052D', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, points: 0 },
-    { id: 't4', name: 'Manchester City', badge: '#6CABDD', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, points: 0 },
-    { id: 't5', name: 'Arsenal', badge: '#EF0107', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, points: 0 },
-    { id: 't6', name: 'Liverpool', badge: '#C8102E', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, points: 0 },
-    { id: 't7', name: 'Paris Saint-Germain', badge: '#004170', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, points: 0 },
-    { id: 't8', name: 'Juventus', badge: '#000000', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, points: 0 },
-    { id: 't9', name: 'AC Milan', badge: '#FB090B', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, points: 0 },
-    { id: 't10', name: 'Inter Milan', badge: '#0018A8', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, points: 0 },
-    { id: 't11', name: 'Borussia Dortmund', badge: '#FDE100', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, points: 0 },
-    { id: 't12', name: 'Atletico Madrid', badge: '#CB3524', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, points: 0 },
-    { id: 't13', name: 'Chelsea', badge: '#034694', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, points: 0 },
-    { id: 't14', name: 'Manchester United', badge: '#DA291C', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, points: 0 },
-    { id: 't15', name: 'Napoli', badge: '#12A0D7', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, points: 0 },
-    { id: 't16', name: 'Ajax', badge: '#D2122E', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, points: 0 },
-  ],
-  fixtures: [
-    { id: 'f1', round: 'Round of 16', homeTeam: 'Real Madrid', awayTeam: 'Ajax', date: '2026-10-15', time: '20:00', venue: 'EMS Stadium', status: 'upcoming', nextMatchId: 'f9', nextMatchSlot: 'homeTeam' },
-    { id: 'f2', round: 'Round of 16', homeTeam: 'Barcelona', awayTeam: 'Napoli', date: '2026-10-15', time: '22:00', venue: 'Jawaharlal Nehru Stadium', status: 'upcoming', nextMatchId: 'f9', nextMatchSlot: 'awayTeam' },
-    { id: 'f3', round: 'Round of 16', homeTeam: 'Bayern Munich', awayTeam: 'Manchester United', date: '2026-10-16', time: '20:00', venue: 'Malappuram Ground', status: 'upcoming', nextMatchId: 'f10', nextMatchSlot: 'homeTeam' },
-    { id: 'f4', round: 'Round of 16', homeTeam: 'Manchester City', awayTeam: 'Chelsea', date: '2026-10-16', time: '22:00', venue: 'Chandrasekharan Nair', status: 'upcoming', nextMatchId: 'f10', nextMatchSlot: 'awayTeam' },
-    { id: 'f5', round: 'Round of 16', homeTeam: 'Arsenal', awayTeam: 'Atletico Madrid', date: '2026-10-17', time: '20:00', venue: 'EMS Stadium', status: 'upcoming', nextMatchId: 'f11', nextMatchSlot: 'homeTeam' },
-    { id: 'f6', round: 'Round of 16', homeTeam: 'Liverpool', awayTeam: 'Borussia Dortmund', date: '2026-10-17', time: '22:00', venue: 'Jawaharlal Nehru Stadium', status: 'upcoming', nextMatchId: 'f11', nextMatchSlot: 'awayTeam' },
-    { id: 'f7', round: 'Round of 16', homeTeam: 'Paris Saint-Germain', awayTeam: 'Inter Milan', date: '2026-10-18', time: '20:00', venue: 'Malappuram Ground', status: 'upcoming', nextMatchId: 'f12', nextMatchSlot: 'homeTeam' },
-    { id: 'f8', round: 'Round of 16', homeTeam: 'Juventus', awayTeam: 'AC Milan', date: '2026-10-18', time: '22:00', venue: 'Chandrasekharan Nair', status: 'upcoming', nextMatchId: 'f12', nextMatchSlot: 'awayTeam' },
-    { id: 'f9', round: 'Quarter-Finals', homeTeam: 'TBD', awayTeam: 'TBD', date: '2026-10-20', time: '20:00', venue: 'EMS Stadium', status: 'upcoming', nextMatchId: 'f13', nextMatchSlot: 'homeTeam' },
-    { id: 'f10', round: 'Quarter-Finals', homeTeam: 'TBD', awayTeam: 'TBD', date: '2026-10-20', time: '22:00', venue: 'Jawaharlal Nehru Stadium', status: 'upcoming', nextMatchId: 'f13', nextMatchSlot: 'awayTeam' },
-    { id: 'f11', round: 'Quarter-Finals', homeTeam: 'TBD', awayTeam: 'TBD', date: '2026-10-21', time: '20:00', venue: 'Malappuram Ground', status: 'upcoming', nextMatchId: 'f14', nextMatchSlot: 'homeTeam' },
-    { id: 'f12', round: 'Quarter-Finals', homeTeam: 'TBD', awayTeam: 'TBD', date: '2026-10-21', time: '22:00', venue: 'Chandrasekharan Nair', status: 'upcoming', nextMatchId: 'f14', nextMatchSlot: 'awayTeam' },
-    { id: 'f13', round: 'Semi-Finals', homeTeam: 'TBD', awayTeam: 'TBD', date: '2026-10-24', time: '20:00', venue: 'EMS Stadium', status: 'upcoming', nextMatchId: 'f15', nextMatchSlot: 'homeTeam' },
-    { id: 'f14', round: 'Semi-Finals', homeTeam: 'TBD', awayTeam: 'TBD', date: '2026-10-24', time: '22:00', venue: 'Jawaharlal Nehru Stadium', status: 'upcoming', nextMatchId: 'f15', nextMatchSlot: 'awayTeam' },
-    { id: 'f15', round: 'Final', homeTeam: 'TBD', awayTeam: 'TBD', date: '2026-10-28', time: '20:00', venue: 'EMS Stadium', status: 'upcoming' },
-  ],
+// Clean initial state — No dummy data
+const EMPTY_DATA = {
+  teams: [],
+  fixtures: [],
   results: [],
   scorers: [],
+  finances: [],
 };
 
-const STORAGE_KEY = 'eveningplay_tournament_knockout_v5';
+const STORAGE_KEY = 'eveningplay_tournament_v7_clean';
 
 function loadFromStorage() {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
       const parsed = JSON.parse(saved);
-      // Strip any legacy group fields
       if (parsed.teams) {
-        parsed.teams = parsed.teams.map(({ group, ...rest }) => rest);
-      }
-      // Ensure completed fixtures are represented in results
-      if (parsed.fixtures) {
-        const completed = parsed.fixtures.filter(f => f.status === 'completed' && f.homeScore !== undefined);
-        const existingResultIds = new Set((parsed.results || []).map(r => r.id || r.fixtureId));
-        const backfilled = completed.filter(f => !existingResultIds.has(f.id)).map(f => ({
-          id: f.id,
-          fixtureId: f.id,
-          round: f.round,
-          homeTeam: f.homeTeam,
-          awayTeam: f.awayTeam,
-          homeScore: parseInt(f.homeScore, 10),
-          awayScore: parseInt(f.awayScore, 10),
-          homePenalty: f.homePenalty !== undefined && f.homePenalty !== '' ? parseInt(f.homePenalty, 10) : undefined,
-          awayPenalty: f.awayPenalty !== undefined && f.awayPenalty !== '' ? parseInt(f.awayPenalty, 10) : undefined,
-          date: f.date,
-          time: f.time,
-          venue: f.venue,
-          scorers: f.scorers || [],
-        }));
-        parsed.results = [...(parsed.results || []), ...backfilled];
+        parsed.teams = parsed.teams.map(({ group: _g, ...rest }) => rest);
       }
       return parsed;
     }
-  } catch (e) { /* ignore */ }
+  } catch (_e) { /* ignore */ }
   return null;
 }
 
 function saveToStorage(data) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  } catch (e) { /* ignore */ }
+  } catch (_e) { /* ignore */ }
 }
 
 function genId() {
@@ -121,9 +83,12 @@ function genId() {
 }
 
 export function TournamentProvider({ children }) {
-  const [data, setData] = useState(() => loadFromStorage() || SEED_DATA);
+  const [data, setData] = useState(() => loadFromStorage() || EMPTY_DATA);
+  const [dbStatus, setDbStatus] = useState('connecting'); // 'connecting' | 'connected' | 'offline' | 'syncing'
   const [toasts, setToasts] = useState([]);
+  const hasLoadedDb = useRef(false);
 
+  // Synchronize localStorage cache whenever state updates
   useEffect(() => {
     saveToStorage(data);
   }, [data]);
@@ -135,17 +100,58 @@ export function TournamentProvider({ children }) {
     setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 3500);
   }, []);
 
+  // ===== Load data from Neon PostgreSQL =====
+  const loadDbData = useCallback(async (isManualRefresh = false) => {
+    try {
+      if (isManualRefresh) setDbStatus('syncing');
+      const ping = await testDbConnection();
+      if (!ping.success) {
+        console.warn('Neon DB not reachable, using local data fallback.', ping.error);
+        setDbStatus('offline');
+        if (isManualRefresh) showToast('Could not reach Neon DB. Using offline cache.', 'error');
+        return;
+      }
+
+      const dbData = await fetchAllTournamentDataFromDb();
+      if (dbData) {
+        setData({
+          teams: dbData.teams || [],
+          fixtures: dbData.fixtures || [],
+          results: dbData.results || [],
+          scorers: dbData.scorers || [],
+          finances: dbData.finances || [],
+        });
+        setDbStatus('connected');
+        if (isManualRefresh) showToast('Data synced with Neon PostgreSQL!');
+      }
+    } catch (err) {
+      console.error('Failed loading data from Neon DB:', err);
+      setDbStatus('offline');
+      if (isManualRefresh) showToast('Failed syncing with Neon DB.', 'error');
+    }
+  }, [showToast]);
+
+  useEffect(() => {
+    if (!hasLoadedDb.current) {
+      hasLoadedDb.current = true;
+      loadDbData();
+    }
+  }, [loadDbData]);
+
   // ===== Teams & Automatic Fixture Creation =====
   const addTeam = useCallback((team, customOpponent = '') => {
     const newTeamId = genId();
-    const newTeam = { ...team, id: newTeamId };
+    const newTeam = { 
+      ...team, 
+      id: newTeamId,
+      players: team.players || []
+    };
 
     setData(prev => {
       const updatedFixtures = [...prev.fixtures];
       let fixtureSummary = '';
 
       if (customOpponent && customOpponent !== 'auto' && customOpponent !== 'TBD') {
-        // Paired with an explicitly selected team
         const newFix = {
           id: genId(),
           round: getNextKnockoutRound(updatedFixtures),
@@ -159,7 +165,6 @@ export function TournamentProvider({ children }) {
         updatedFixtures.push(newFix);
         fixtureSummary = `${team.name} vs ${customOpponent}`;
       } else {
-        // 1. Check if there is an existing fixture waiting for an opponent (with 'TBD')
         const tbdIdx = updatedFixtures.findIndex(f => f.status === 'upcoming' && (f.awayTeam === 'TBD' || f.homeTeam === 'TBD'));
 
         if (tbdIdx !== -1) {
@@ -172,7 +177,6 @@ export function TournamentProvider({ children }) {
             fixtureSummary = `${team.name} vs ${waiting.awayTeam}`;
           }
         } else {
-          // 2. Check if there is any team in prev.teams not currently in an upcoming fixture
           const scheduled = new Set();
           updatedFixtures.filter(f => f.status === 'upcoming').forEach(f => {
             scheduled.add(f.homeTeam);
@@ -195,7 +199,6 @@ export function TournamentProvider({ children }) {
             updatedFixtures.push(newFix);
             fixtureSummary = `${availableOpponent.name} vs ${team.name}`;
           } else {
-            // 3. No opponent available yet: create a Knockout fixture with TBD
             const newFix = {
               id: genId(),
               round: getNextKnockoutRound(updatedFixtures),
@@ -211,6 +214,9 @@ export function TournamentProvider({ children }) {
           }
         }
       }
+
+      upsertTeamInDb(newTeam).catch(e => console.error('Error saving team to Neon:', e));
+      saveFixturesBatchInDb(updatedFixtures).catch(e => console.error('Error saving fixtures to Neon:', e));
 
       setTimeout(() => {
         showToast(`Team added & Knockout Fixture created: ${fixtureSummary}!`);
@@ -228,8 +234,8 @@ export function TournamentProvider({ children }) {
     setData(prev => {
       const oldTeam = prev.teams.find(t => t.id === id);
       const updatedTeams = prev.teams.map(t => t.id === id ? { ...t, ...updates } : t);
+      const changedTeam = updatedTeams.find(t => t.id === id);
 
-      // If team name changed, cascade name change to fixtures and results
       let updatedFixtures = prev.fixtures;
       let updatedResults = prev.results;
       if (oldTeam && updates.name && oldTeam.name !== updates.name) {
@@ -243,6 +249,11 @@ export function TournamentProvider({ children }) {
           homeTeam: r.homeTeam === oldTeam.name ? updates.name : r.homeTeam,
           awayTeam: r.awayTeam === oldTeam.name ? updates.name : r.awayTeam,
         }));
+        saveFixturesBatchInDb(updatedFixtures).catch(e => console.error('Error updating fixtures in Neon:', e));
+      }
+
+      if (changedTeam) {
+        upsertTeamInDb(changedTeam).catch(e => console.error('Error updating team in Neon:', e));
       }
 
       return { ...prev, teams: updatedTeams, fixtures: updatedFixtures, results: updatedResults };
@@ -254,13 +265,15 @@ export function TournamentProvider({ children }) {
     setData(prev => {
       const toDelete = prev.teams.find(t => t.id === id);
       const filteredTeams = prev.teams.filter(t => t.id !== id);
-      // Remove or set TBD in upcoming fixtures
       const updatedFixtures = prev.fixtures.map(f => {
         if (!toDelete) return f;
         if (f.homeTeam === toDelete.name) return { ...f, homeTeam: 'TBD' };
         if (f.awayTeam === toDelete.name) return { ...f, awayTeam: 'TBD' };
         return f;
       }).filter(f => !(f.homeTeam === 'TBD' && f.awayTeam === 'TBD'));
+
+      deleteTeamFromDb(id).catch(e => console.error('Error deleting team in Neon:', e));
+      saveFixturesBatchInDb(updatedFixtures).catch(e => console.error('Error updating fixtures in Neon:', e));
 
       return { ...prev, teams: filteredTeams, fixtures: updatedFixtures };
     });
@@ -269,11 +282,12 @@ export function TournamentProvider({ children }) {
 
   // ===== Fixtures =====
   const addFixture = useCallback((fixture) => {
-    const id = genId();
+    const newFix = { ...fixture, id: genId(), status: fixture.status || 'upcoming' };
     setData(prev => ({
       ...prev,
-      fixtures: [...prev.fixtures, { ...fixture, id, status: fixture.status || 'upcoming' }],
+      fixtures: [...prev.fixtures, newFix],
     }));
+    upsertFixtureInDb(newFix).catch(e => console.error('Error adding fixture in Neon:', e));
     showToast(`Knockout Fixture added: ${fixture.homeTeam} vs ${fixture.awayTeam}`);
   }, [showToast]);
 
@@ -288,6 +302,7 @@ export function TournamentProvider({ children }) {
       fixtures[matchIdx] = updatedMatch;
 
       // Knockout Winner Progression (Auto-advance)
+      let nextMatchToSave = null;
       if (updatedMatch.status === 'completed' && updatedMatch.homeScore !== undefined && updatedMatch.awayScore !== undefined) {
         if (updatedMatch.nextMatchId) {
           const h = parseInt(updatedMatch.homeScore, 10);
@@ -299,13 +314,12 @@ export function TournamentProvider({ children }) {
           } else if (a > h) {
             winner = updatedMatch.awayTeam;
           } else {
-            // Tie - evaluated through penalty shootout
             const hp = updatedMatch.homePenalty !== undefined && updatedMatch.homePenalty !== '' ? parseInt(updatedMatch.homePenalty, 10) : null;
             const ap = updatedMatch.awayPenalty !== undefined && updatedMatch.awayPenalty !== '' ? parseInt(updatedMatch.awayPenalty, 10) : null;
             if (hp !== null && ap !== null && !isNaN(hp) && !isNaN(ap)) {
               if (hp > ap) winner = updatedMatch.homeTeam;
               else if (ap > hp) winner = updatedMatch.awayTeam;
-              else winner = null; // Still tied
+              else winner = null;
             }
           }
 
@@ -315,10 +329,10 @@ export function TournamentProvider({ children }) {
               ...fixtures[nextIdx],
               [updatedMatch.nextMatchSlot]: winner
             };
+            nextMatchToSave = fixtures[nextIdx];
           }
         }
       } else if (prevMatch.status === 'completed' && updatedMatch.status !== 'completed') {
-        // Was completed before, but now changed to postponed or upcoming
         if (updatedMatch.nextMatchId) {
           const nextIdx = fixtures.findIndex(f => f.id === updatedMatch.nextMatchId);
           if (nextIdx !== -1) {
@@ -326,16 +340,18 @@ export function TournamentProvider({ children }) {
               ...fixtures[nextIdx],
               [updatedMatch.nextMatchSlot]: 'TBD'
             };
+            nextMatchToSave = fixtures[nextIdx];
           }
         }
       }
 
-      // Synchronize results array for Dashboard & Results page
+      // Synchronize results array
       let results = [...(prev.results || [])].filter(r => r.id !== id && r.fixtureId !== id);
+      let resultToSave = null;
       if (updatedMatch.status === 'completed') {
         const hp = updatedMatch.homePenalty !== undefined && updatedMatch.homePenalty !== '' ? parseInt(updatedMatch.homePenalty, 10) : undefined;
         const ap = updatedMatch.awayPenalty !== undefined && updatedMatch.awayPenalty !== '' ? parseInt(updatedMatch.awayPenalty, 10) : undefined;
-        results.unshift({
+        resultToSave = {
           id: updatedMatch.id,
           fixtureId: updatedMatch.id,
           round: updatedMatch.round,
@@ -349,31 +365,47 @@ export function TournamentProvider({ children }) {
           time: updatedMatch.time,
           venue: updatedMatch.venue,
           scorers: updatedMatch.scorers || [],
-        });
+        };
+        results.unshift(resultToSave);
+      } else {
+        deleteResultFromDb(id).catch(e => console.error('Error removing result from Neon:', e));
       }
 
-      // Synchronize new scorers if provided
+      // Synchronize new scorers
       let scorers = [...prev.scorers];
       if (updates.newScorers && Array.isArray(updates.newScorers)) {
         updates.newScorers.forEach(sc => {
           if (!sc.name || !sc.name.trim()) return;
           const existIdx = scorers.findIndex(s => s.name.toLowerCase() === sc.name.trim().toLowerCase() && s.team === sc.team);
+          let targetScorer;
           if (existIdx !== -1) {
-            scorers[existIdx] = {
+            targetScorer = {
               ...scorers[existIdx],
               goals: (scorers[existIdx].goals || 0) + (parseInt(sc.goals, 10) || 1),
             };
+            scorers[existIdx] = targetScorer;
           } else {
-            scorers.push({
+            targetScorer = {
               id: genId(),
               name: sc.name.trim(),
               team: sc.team,
               teamBadge: sc.teamBadge || '#156637',
               goals: parseInt(sc.goals, 10) || 1,
               assists: 0,
-            });
+            };
+            scorers.push(targetScorer);
           }
+          upsertScorerInDb(targetScorer).catch(e => console.error('Error saving scorer to Neon:', e));
         });
+      }
+
+      // Persist to Neon DB
+      upsertFixtureInDb(updatedMatch).catch(e => console.error('Error saving fixture to Neon:', e));
+      if (nextMatchToSave) {
+        upsertFixtureInDb(nextMatchToSave).catch(e => console.error('Error saving next match to Neon:', e));
+      }
+      if (resultToSave) {
+        upsertResultInDb(resultToSave).catch(e => console.error('Error saving result to Neon:', e));
       }
 
       return { ...prev, fixtures, results, scorers };
@@ -383,52 +415,123 @@ export function TournamentProvider({ children }) {
 
   const deleteFixture = useCallback((id) => {
     setData(prev => ({ ...prev, fixtures: prev.fixtures.filter(f => f.id !== id) }));
+    deleteFixtureFromDb(id).catch(e => console.error('Error deleting fixture from Neon:', e));
     showToast('Fixture deleted.', 'error');
   }, [showToast]);
 
   // ===== Results =====
   const addResult = useCallback((result) => {
-    setData(prev => ({ ...prev, results: [...prev.results, { ...result, id: genId() }] }));
+    const newRes = { ...result, id: genId() };
+    setData(prev => ({ ...prev, results: [...prev.results, newRes] }));
+    upsertResultInDb(newRes).catch(e => console.error('Error saving result to Neon:', e));
     showToast('Match result recorded!');
   }, [showToast]);
 
   const updateResult = useCallback((id, updates) => {
-    setData(prev => ({ ...prev, results: prev.results.map(r => r.id === id ? { ...r, ...updates } : r) }));
+    setData(prev => {
+      const updatedResults = prev.results.map(r => r.id === id ? { ...r, ...updates } : r);
+      const changed = updatedResults.find(r => r.id === id);
+      if (changed) {
+        upsertResultInDb(changed).catch(e => console.error('Error updating result in Neon:', e));
+      }
+      return { ...prev, results: updatedResults };
+    });
     showToast('Result updated!');
   }, [showToast]);
 
   const deleteResult = useCallback((id) => {
     setData(prev => ({ ...prev, results: prev.results.filter(r => r.id !== id) }));
+    deleteResultFromDb(id).catch(e => console.error('Error deleting result in Neon:', e));
     showToast('Result deleted.', 'error');
   }, [showToast]);
 
   // ===== Scorers =====
   const addScorer = useCallback((scorer) => {
-    setData(prev => ({ ...prev, scorers: [...prev.scorers, { ...scorer, id: genId() }] }));
+    const newScorer = { ...scorer, id: genId() };
+    setData(prev => ({ ...prev, scorers: [...prev.scorers, newScorer] }));
+    upsertScorerInDb(newScorer).catch(e => console.error('Error saving scorer to Neon:', e));
     showToast('Scorer added!');
   }, [showToast]);
 
   const updateScorer = useCallback((id, updates) => {
-    setData(prev => ({ ...prev, scorers: prev.scorers.map(s => s.id === id ? { ...s, ...updates } : s) }));
+    setData(prev => {
+      const updatedScorers = prev.scorers.map(s => s.id === id ? { ...s, ...updates } : s);
+      const changed = updatedScorers.find(s => s.id === id);
+      if (changed) {
+        upsertScorerInDb(changed).catch(e => console.error('Error updating scorer in Neon:', e));
+      }
+      return { ...prev, scorers: updatedScorers };
+    });
     showToast('Scorer updated!');
   }, [showToast]);
 
   const deleteScorer = useCallback((id) => {
     setData(prev => ({ ...prev, scorers: prev.scorers.filter(s => s.id !== id) }));
+    deleteScorerFromDb(id).catch(e => console.error('Error deleting scorer in Neon:', e));
     showToast('Scorer deleted.', 'error');
   }, [showToast]);
 
-  const resetData = useCallback(() => {
-    setData(SEED_DATA);
-    showToast('Tournament data reset to Kerala Knockout defaults');
+  // ===== Finances =====
+  const addFinanceTransaction = useCallback((transaction) => {
+    const newTx = {
+      ...transaction,
+      id: genId(),
+      amount: Number(transaction.amount) || 0,
+    };
+    setData(prev => ({
+      ...prev,
+      finances: [newTx, ...(prev.finances || [])],
+    }));
+    upsertFinanceInDb(newTx).catch(e => console.error('Error saving finance to Neon:', e));
+    showToast(`${transaction.type === 'income' ? 'Income' : 'Expense'} recorded: ₹${Number(transaction.amount).toLocaleString('en-IN')}`);
+  }, [showToast]);
+
+  const updateFinanceTransaction = useCallback((id, updates) => {
+    setData(prev => {
+      const currentList = prev.finances || [];
+      const updatedFinances = currentList.map(item => item.id === id ? { ...item, ...updates, amount: Number(updates.amount !== undefined ? updates.amount : item.amount) } : item);
+      const changed = updatedFinances.find(f => f.id === id);
+      if (changed) {
+        upsertFinanceInDb(changed).catch(e => console.error('Error updating finance in Neon:', e));
+      }
+      return { ...prev, finances: updatedFinances };
+    });
+    showToast('Transaction updated!');
+  }, [showToast]);
+
+  const deleteFinanceTransaction = useCallback((id) => {
+    setData(prev => ({
+      ...prev,
+      finances: (prev.finances || []).filter(item => item.id !== id),
+    }));
+    deleteFinanceFromDb(id).catch(e => console.error('Error deleting finance in Neon:', e));
+    showToast('Transaction removed.', 'error');
+  }, [showToast]);
+
+  const resetData = useCallback(async () => {
+    setData(EMPTY_DATA);
+    setDbStatus('syncing');
+    try {
+      await clearAllDatabaseData();
+      setDbStatus('connected');
+      showToast('All tournament data and finances cleared from Neon DB');
+    } catch (e) {
+      console.error('Error clearing database:', e);
+      setDbStatus('offline');
+      showToast('Cleared locally, but failed to sync to Neon DB.', 'error');
+    }
   }, [showToast]);
 
   const value = {
     ...data,
+    finances: data.finances || [],
+    dbStatus,
+    refreshDb: () => loadDbData(true),
     addTeam, updateTeam, deleteTeam,
     addFixture, updateFixture, deleteFixture,
     addResult, updateResult, deleteResult,
     addScorer, updateScorer, deleteScorer,
+    addFinanceTransaction, updateFinanceTransaction, deleteFinanceTransaction,
     resetData,
     toasts,
   };
