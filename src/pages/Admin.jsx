@@ -14,13 +14,64 @@ import ScorersAdmin from '../components/AdminPanel/ScorersAdmin';
 import FinanceAdmin from '../components/AdminPanel/FinanceAdmin';
 import AdminLogin from '../components/AdminLogin/AdminLogin';
 import './Admin.css';
+import '../components/AdminPanel/AdminPanel.css';
 
 const TABS = [
-  { key: 'teams', label: 'Teams & Squads', icon: Users, badgeKey: 'teams' },
-  { key: 'fixtures', label: 'Fixtures & Schedule', icon: Calendar, badgeKey: 'fixtures' },
-  { key: 'results', label: 'Match Results', icon: CheckCircle, badgeKey: 'results' },
-  { key: 'scorers', label: 'Top Scorers', icon: BarChart2, badgeKey: 'scorers' },
-  { key: 'finances', label: 'Finances & Budget', icon: DollarSign, badgeKey: 'finances' },
+  {
+    key: 'teams',
+    label: 'Teams & Squads',
+    sublabel: 'Rosters & Seeds',
+    icon: Users,
+    footballIcon: '🛡️',
+    badgeKey: 'teams',
+    color: '#00E676',
+    glowColor: 'rgba(0, 230, 118, 0.28)',
+    badgeUnit: 'Clubs',
+  },
+  {
+    key: 'fixtures',
+    label: 'Fixtures & Schedule',
+    sublabel: 'Knockout Tree & Times',
+    icon: Calendar,
+    footballIcon: '📅',
+    badgeKey: 'fixtures',
+    color: '#10B981',
+    glowColor: 'rgba(16, 185, 129, 0.28)',
+    badgeUnit: 'Matches',
+  },
+  {
+    key: 'results',
+    label: 'Match Results',
+    sublabel: 'Scores & Shootouts',
+    icon: CheckCircle,
+    footballIcon: '🏆',
+    badgeKey: 'results',
+    color: '#F59E0B',
+    glowColor: 'rgba(245, 158, 11, 0.28)',
+    badgeUnit: 'Scores',
+  },
+  {
+    key: 'scorers',
+    label: 'Top Scorers',
+    sublabel: 'Golden Boot Race',
+    icon: BarChart2,
+    footballIcon: '⚽',
+    badgeKey: 'scorers',
+    color: '#A855F7',
+    glowColor: 'rgba(168, 85, 247, 0.28)',
+    badgeUnit: 'Players',
+  },
+  {
+    key: 'finances',
+    label: 'Finances & Budget',
+    sublabel: 'Ledger & Cashflow',
+    icon: DollarSign,
+    footballIcon: '💰',
+    badgeKey: 'finances',
+    color: '#14B8A6',
+    glowColor: 'rgba(20, 184, 166, 0.28)',
+    badgeUnit: 'Ledger',
+  },
 ];
 
 export default function Admin() {
@@ -243,10 +294,10 @@ export default function Admin() {
         </div>
       </div>
 
-      {/* ===== ADMIN NAVIGATION TABS ===== */}
-      <div className="admin-tabs-nav-container">
-        <div className="admin-tabs-nav">
-          {TABS.map(({ key, label, icon: Icon, badgeKey }) => {
+      {/* ===== FOOTBALL STADIUM CONTROL DECK ===== */}
+      <div className="stadium-tab-deck-container">
+        <div className="stadium-tab-deck-grid">
+          {TABS.map(({ key, label, sublabel, icon: Icon, footballIcon, color, glowColor, badgeKey, badgeUnit }) => {
             const count = getBadgeCount(badgeKey);
             const isActive = activeTab === key;
 
@@ -254,16 +305,39 @@ export default function Admin() {
               <button
                 key={key}
                 type="button"
-                className={`admin-nav-tab ${isActive ? 'admin-nav-tab--active' : ''}`}
+                className={`stadium-tab-card ${isActive ? 'stadium-tab-card--active' : ''}`}
+                style={{
+                  '--tab-accent': color,
+                  '--tab-glow': glowColor,
+                }}
                 onClick={() => setActiveTab(key)}
               >
-                <Icon size={17} />
-                <span>{label}</span>
-                {count !== null && (
-                  <span className={`tab-count-badge ${isActive ? 'badge-active' : ''}`}>
-                    {count}
-                  </span>
-                )}
+                {/* Top Row: Football Crest Box + Scoreboard LED Badge */}
+                <div className="stadium-tab-header">
+                  <div className="stadium-crest-box">
+                    <span className="crest-emoji">{footballIcon}</span>
+                    <Icon size={16} className="crest-icon" />
+                  </div>
+
+                  {count !== null && (
+                    <div className={`stadium-scoreboard-pill ${isActive ? 'scoreboard--active' : ''}`}>
+                      <span className="led-count">{count}</span>
+                      <span className="led-unit">{badgeUnit}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Matchday Section Title & Boxed Subtag */}
+                <div className="stadium-tab-body">
+                  <h4 className="matchday-tab-title">{label}</h4>
+                  <div className="matchday-subtag-pill">
+                    <span className="subtag-dot" />
+                    <span>{sublabel}</span>
+                  </div>
+                </div>
+
+                {/* Pitch Turf Active Glow Line */}
+                {isActive && <div className="pitch-turf-indicator" />}
               </button>
             );
           })}

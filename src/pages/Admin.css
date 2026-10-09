@@ -165,76 +165,190 @@
   margin-top: 2px;
 }
 
-/* ===== NAVIGATION TABS ===== */
-.admin-tabs-nav-container {
-  background: var(--surface);
-  border: 1px solid var(--border);
+/* ===== FOOTBALL STADIUM CONTROL DECK (CLEAN WHITE THEME) ===== */
+.stadium-tab-deck-container {
+  background: #ffffff;
+  border: 1.5px solid var(--border);
   border-radius: var(--radius-xl);
-  padding: 8px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+  padding: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
 }
 
-.admin-tabs-nav {
+.stadium-tab-deck-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+}
+
+.stadium-tab-card {
+  position: relative;
   display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 14px 14px 12px;
+  background: #fbfcfb;
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+  min-height: 98px;
+}
+
+.stadium-tab-card:hover {
+  background: #ffffff;
+  border-color: var(--tab-accent);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08), 0 0 12px var(--tab-glow);
+}
+
+.stadium-tab-card--active {
+  background: #ffffff !important;
+  border-color: var(--tab-accent) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08), 0 0 16px var(--tab-glow) !important;
+  transform: translateY(-2px);
+}
+
+.stadium-tab-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.stadium-crest-box {
+  display: inline-flex;
   align-items: center;
   gap: 6px;
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-
-.admin-tabs-nav::-webkit-scrollbar {
-  display: none;
-}
-
-.admin-nav-tab {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  padding: 12px 20px;
-  border-radius: var(--radius-lg);
-  border: none;
-  background: transparent;
-  color: var(--text-secondary);
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.admin-nav-tab:hover {
-  color: var(--text-primary);
-  background: var(--surface-hover);
-}
-
-.admin-nav-tab--active {
-  background: var(--primary) !important;
-  color: #FFFFFF !important;
-  box-shadow: 0 4px 14px rgba(0, 155, 98, 0.22);
-}
-
-.tab-count-badge {
-  font-family: 'DM Mono', monospace;
-  font-size: 11px;
-  font-weight: 800;
-  padding: 2px 7px;
-  border-radius: var(--radius-full, 9999px);
-  background: var(--surface-hover);
-  color: var(--text-muted);
-}
-
-.tab-count-badge.badge-active {
-  background: rgba(255, 255, 255, 0.22);
-  color: #FFFFFF;
-}
-
-/* ===== TAB WORKSPACE ===== */
-.admin-tab-workspace {
-  background: var(--surface);
+  padding: 4px 8px;
+  background: rgba(0, 0, 0, 0.03);
   border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.crest-emoji {
+  font-size: 15px;
+  line-height: 1;
+}
+
+.crest-icon {
+  color: var(--tab-accent);
+}
+
+.stadium-scoreboard-pill {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  padding: 2.5px 8px;
+  background: #f1f5f3;
+  border: 1px solid var(--border);
+  border-radius: 9999px;
+  font-family: 'DM Mono', monospace;
+  transition: all 0.2s ease;
+}
+
+.stadium-scoreboard-pill .led-count {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 13.5px;
+  font-weight: 900;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.stadium-scoreboard-pill .led-unit {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.stadium-scoreboard-pill.scoreboard--active {
+  background: var(--tab-accent);
+  border-color: var(--tab-accent);
+  box-shadow: 0 0 10px var(--tab-glow);
+}
+
+.stadium-scoreboard-pill.scoreboard--active .led-count,
+.stadium-scoreboard-pill.scoreboard--active .led-unit {
+  color: #ffffff !important;
+  font-weight: 900;
+}
+
+.stadium-tab-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  min-width: 0;
+}
+
+.matchday-tab-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.matchday-subtag-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  background: #f1f5f3;
+  border: 1px solid var(--border);
+  padding: 1.5px 7px;
+  border-radius: 4px;
+  width: fit-content;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.matchday-subtag-pill .subtag-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--tab-accent);
+  box-shadow: 0 0 6px var(--tab-accent);
+  flex-shrink: 0;
+}
+
+.stadium-tab-card--active .matchday-subtag-pill {
+  color: var(--text-primary);
+  background: #ffffff;
+  border-color: var(--tab-accent);
+}
+
+.pitch-turf-indicator {
+  position: absolute;
+  bottom: 0;
+  left: 12px;
+  right: 12px;
+  height: 3px;
+  border-radius: 3px 3px 0 0;
+  background: var(--tab-accent);
+  box-shadow: 0 0 8px var(--tab-accent);
+}
+
+/* ===== TAB WORKSPACE (CLEAN WHITE THEME) ===== */
+.admin-tab-workspace {
+  background: #ffffff;
+  border: 1.5px solid var(--border);
   border-radius: var(--radius-xl);
-  padding: 28px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+  padding: 24px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.03);
   min-height: 500px;
 }
 
@@ -355,15 +469,21 @@
   .admin-metrics-ribbon {
     grid-template-columns: repeat(3, 1fr);
   }
+
+  .admin-tabs-nav-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 @media (max-width: 768px) {
   .admin-page {
-    padding: 20px 14px 90px;
+    padding: 16px 12px 90px;
+    gap: 16px;
   }
 
   .admin-hero {
-    padding: 20px;
+    padding: 18px;
+    gap: 16px;
   }
 
   .admin-hero .page-title {
@@ -372,14 +492,67 @@
 
   .admin-metrics-ribbon {
     grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .stadium-tab-deck-container {
+    padding: 8px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .stadium-tab-deck-container::-webkit-scrollbar {
+    display: none;
+  }
+
+  .stadium-tab-deck-grid {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 8px;
+    min-width: max-content;
+  }
+
+  .stadium-tab-card {
+    min-width: 175px;
+    padding: 12px 12px 10px;
+    min-height: 88px;
   }
 
   .admin-tab-workspace {
-    padding: 16px;
+    padding: 16px 12px;
+    border-radius: var(--radius-lg);
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-page {
+    padding: 12px 8px 80px;
+    gap: 12px;
   }
 
-  .admin-nav-tab {
-    padding: 10px 14px;
+  .admin-hero {
+    padding: 14px 12px;
+    gap: 12px;
+  }
+
+  .admin-hero .page-title {
+    font-size: 20px;
+  }
+
+  .stadium-tab-card {
+    min-width: 140px;
+    padding: 10px 10px 8px;
+    min-height: 80px;
+  }
+
+  .matchday-tab-title {
     font-size: 13px;
+  }
+
+  .admin-tab-workspace {
+    padding: 12px 8px;
+    border-radius: var(--radius-md);
+    min-height: 380px;
   }
 }

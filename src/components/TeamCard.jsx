@@ -38,7 +38,7 @@ export default function TeamCard({ team, analytics, index, onSelect, viewMode = 
               boxShadow: `0 4px 14px ${badgeColor}40`,
             }}
           >
-            {team.name.charAt(0)}
+            {index !== undefined ? index + 1 : (team.name ? team.name.charAt(0) : '1')}
           </div>
           <div className="tsc-info">
             <h3 className="tsc-name">{team.name}</h3>
@@ -109,7 +109,7 @@ export default function TeamCard({ team, analytics, index, onSelect, viewMode = 
             boxShadow: `0 6px 18px ${badgeColor}38`,
           }}
         >
-          <span>{team.name.charAt(0)}</span>
+          <span>{index !== undefined ? index + 1 : (team.name ? team.name.charAt(0) : '1')}</span>
         </div>
 
         <div className="team-pro-title-wrap">

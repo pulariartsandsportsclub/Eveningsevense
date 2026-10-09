@@ -16,6 +16,7 @@ import {
   clearAllDatabaseData,
   testDbConnection
 } from '../services/neonDb';
+import { processKnockoutProgression } from '../utils/bracketProgression';
 
 const TournamentContext = createContext(null);
 
@@ -138,94 +139,228 @@ export function TournamentProvider({ children }) {
     }
   }, [loadDbData]);
 
-  // ===== Teams & Automatic Fixture Creation =====
-  const addTeam = useCallback((team, customOpponent = '') => {
+  // ===== Teams Management =====
+  const addTeam = useCallback((team) => {
     const newTeamId = genId();
-    const newTeam = { 
-      ...team, 
+    const newTeam = {
+      ...team,
       id: newTeamId,
-      players: team.players || []
+      name: team.name ? team.name.trim() : 'Unnamed Club',
+      badge: team.badge || '#156637',
+      players: Array.isArray(team.players) ? team.players : [],
+      played: team.played || 0,
+      won: team.won || 0,
+      drawn: team.drawn || 0,
+      lost: team.lost || 0,
+      gf: team.gf || 0,
+      ga: team.ga || 0,
+      points: team.points || 0,
     };
 
     setData(prev => {
-      const updatedFixtures = [...prev.fixtures];
-      let fixtureSummary = '';
-
-      if (customOpponent && customOpponent !== 'auto' && customOpponent !== 'TBD') {
-        const newFix = {
-          id: genId(),
-          round: getNextKnockoutRound(updatedFixtures),
-          homeTeam: team.name,
-          awayTeam: customOpponent,
-          date: getNextMatchDate(updatedFixtures),
-          time: '16:30',
-          venue: getNextVenue(updatedFixtures),
-          status: 'upcoming',
-        };
-        updatedFixtures.push(newFix);
-        fixtureSummary = `${team.name} vs ${customOpponent}`;
-      } else {
-        const tbdIdx = updatedFixtures.findIndex(f => f.status === 'upcoming' && (f.awayTeam === 'TBD' || f.homeTeam === 'TBD'));
-
-        if (tbdIdx !== -1) {
-          const waiting = updatedFixtures[tbdIdx];
-          if (waiting.awayTeam === 'TBD') {
-            updatedFixtures[tbdIdx] = { ...waiting, awayTeam: team.name };
-            fixtureSummary = `${waiting.homeTeam} vs ${team.name}`;
-          } else {
-            updatedFixtures[tbdIdx] = { ...waiting, homeTeam: team.name };
-            fixtureSummary = `${team.name} vs ${waiting.awayTeam}`;
-          }
-        } else {
-          const scheduled = new Set();
-          updatedFixtures.filter(f => f.status === 'upcoming').forEach(f => {
-            scheduled.add(f.homeTeam);
-            scheduled.add(f.awayTeam);
-          });
-
-          const availableOpponent = prev.teams.find(t => !scheduled.has(t.name) && t.name !== team.name);
-
-          if (availableOpponent) {
-            const newFix = {
-              id: genId(),
-              round: getNextKnockoutRound(updatedFixtures),
-              homeTeam: availableOpponent.name,
-              awayTeam: team.name,
-              date: getNextMatchDate(updatedFixtures),
-              time: '16:30',
-              venue: getNextVenue(updatedFixtures),
-              status: 'upcoming',
-            };
-            updatedFixtures.push(newFix);
-            fixtureSummary = `${availableOpponent.name} vs ${team.name}`;
-          } else {
-            const newFix = {
-              id: genId(),
-              round: getNextKnockoutRound(updatedFixtures),
-              homeTeam: team.name,
-              awayTeam: 'TBD',
-              date: getNextMatchDate(updatedFixtures),
-              time: '16:30',
-              venue: getNextVenue(updatedFixtures),
-              status: 'upcoming',
-            };
-            updatedFixtures.push(newFix);
-            fixtureSummary = `${team.name} vs TBD`;
-          }
-        }
-      }
-
       upsertTeamInDb(newTeam).catch(e => console.error('Error saving team to Neon:', e));
-      saveFixturesBatchInDb(updatedFixtures).catch(e => console.error('Error saving fixtures to Neon:', e));
-
-      setTimeout(() => {
-        showToast(`Team added & Knockout Fixture created: ${fixtureSummary}!`);
-      }, 50);
-
+      showToast(`Club "${newTeam.name}" saved successfully!`);
       return {
         ...prev,
         teams: [...prev.teams, newTeam],
-        fixtures: updatedFixtures,
+      };
+    });
+  }, [showToast]);
+
+  // ===== Auto-Generate / Auto-Assign Fixtures from Tournament Scale =====
+  const autoGenerateFixtures = useCallback((options = {}) => {
+    setData(prev => {
+      const {
+        bracketSize = (prev.teams.length > 8 ? 16 : prev.teams.length > 4 ? 8 : prev.teams.length > 2 ? 4 : 2),
+        assignmentMode = 'auto', // 'auto' | 'manual'
+        shuffle = false,
+        replaceExisting = true,
+        startDate = new Date().toISOString().split('T')[0],
+        defaultVenue = 'EMS Stadium, Kozhikode',
+        defaultTime = '16:30',
+      } = options;
+
+      let teamList = [...prev.teams];
+      if (shuffle) {
+        teamList.sort(() => Math.random() - 0.5);
+      }
+
+      const baseDate = new Date(startDate || new Date());
+      const newFixtures = [];
+
+      if (Number(bracketSize) === 16) {
+        // 1. Eight Round of 16 matches
+        for (let i = 1; i <= 8; i++) {
+          const home = assignmentMode === 'auto' ? (teamList[(i - 1) * 2] || { name: 'TBD' }) : { name: 'TBD' };
+          const away = assignmentMode === 'auto' ? (teamList[(i - 1) * 2 + 1] || { name: 'TBD' }) : { name: 'TBD' };
+          const d = new Date(baseDate);
+          d.setDate(d.getDate() + Math.floor((i - 1) / 2));
+
+          newFixtures.push({
+            id: genId(),
+            round: `Round of 16 ${i}`,
+            homeTeam: home.name,
+            awayTeam: away.name,
+            date: d.toISOString().split('T')[0],
+            time: defaultTime,
+            venue: defaultVenue,
+            status: 'upcoming',
+          });
+        }
+
+        // 2. Four Quarter-Finals
+        for (let q = 1; q <= 4; q++) {
+          const d = new Date(baseDate);
+          d.setDate(d.getDate() + 4 + Math.floor((q - 1) / 2));
+          newFixtures.push({
+            id: genId(),
+            round: `Quarter-Final ${q}`,
+            homeTeam: 'TBD',
+            awayTeam: 'TBD',
+            date: d.toISOString().split('T')[0],
+            time: defaultTime,
+            venue: defaultVenue,
+            status: 'upcoming',
+          });
+        }
+
+        // 3. Two Semi-Finals
+        for (let s = 1; s <= 2; s++) {
+          const d = new Date(baseDate);
+          d.setDate(d.getDate() + 8 + s);
+          newFixtures.push({
+            id: genId(),
+            round: `Semi-Final ${s}`,
+            homeTeam: 'TBD',
+            awayTeam: 'TBD',
+            date: d.toISOString().split('T')[0],
+            time: defaultTime,
+            venue: defaultVenue,
+            status: 'upcoming',
+          });
+        }
+
+        // 4. One Final
+        const df = new Date(baseDate);
+        df.setDate(df.getDate() + 12);
+        newFixtures.push({
+          id: genId(),
+          round: 'Final',
+          homeTeam: 'TBD',
+          awayTeam: 'TBD',
+          date: df.toISOString().split('T')[0],
+          time: defaultTime,
+          venue: defaultVenue,
+          status: 'upcoming',
+        });
+      } else if (Number(bracketSize) === 8) {
+        // 1. Four Quarter-Finals
+        for (let q = 1; q <= 4; q++) {
+          const home = assignmentMode === 'auto' ? (teamList[(q - 1) * 2] || { name: 'TBD' }) : { name: 'TBD' };
+          const away = assignmentMode === 'auto' ? (teamList[(q - 1) * 2 + 1] || { name: 'TBD' }) : { name: 'TBD' };
+          const d = new Date(baseDate);
+          d.setDate(d.getDate() + Math.floor((q - 1) / 2));
+
+          newFixtures.push({
+            id: genId(),
+            round: `Quarter-Final ${q}`,
+            homeTeam: home.name,
+            awayTeam: away.name,
+            date: d.toISOString().split('T')[0],
+            time: defaultTime,
+            venue: defaultVenue,
+            status: 'upcoming',
+          });
+        }
+
+        // 2. Two Semi-Finals
+        for (let s = 1; s <= 2; s++) {
+          const d = new Date(baseDate);
+          d.setDate(d.getDate() + 4 + s);
+          newFixtures.push({
+            id: genId(),
+            round: `Semi-Final ${s}`,
+            homeTeam: 'TBD',
+            awayTeam: 'TBD',
+            date: d.toISOString().split('T')[0],
+            time: defaultTime,
+            venue: defaultVenue,
+            status: 'upcoming',
+          });
+        }
+
+        // 3. One Final
+        const df = new Date(baseDate);
+        df.setDate(df.getDate() + 7);
+        newFixtures.push({
+          id: genId(),
+          round: 'Final',
+          homeTeam: 'TBD',
+          awayTeam: 'TBD',
+          date: df.toISOString().split('T')[0],
+          time: defaultTime,
+          venue: defaultVenue,
+          status: 'upcoming',
+        });
+      } else if (Number(bracketSize) === 4) {
+        // 1. Two Semi-Finals
+        for (let s = 1; s <= 2; s++) {
+          const home = assignmentMode === 'auto' ? (teamList[(s - 1) * 2] || { name: 'TBD' }) : { name: 'TBD' };
+          const away = assignmentMode === 'auto' ? (teamList[(s - 1) * 2 + 1] || { name: 'TBD' }) : { name: 'TBD' };
+          const d = new Date(baseDate);
+          d.setDate(d.getDate() + s - 1);
+
+          newFixtures.push({
+            id: genId(),
+            round: `Semi-Final ${s}`,
+            homeTeam: home.name,
+            awayTeam: away.name,
+            date: d.toISOString().split('T')[0],
+            time: defaultTime,
+            venue: defaultVenue,
+            status: 'upcoming',
+          });
+        }
+
+        // 2. One Final
+        const df = new Date(baseDate);
+        df.setDate(df.getDate() + 3);
+        newFixtures.push({
+          id: genId(),
+          round: 'Final',
+          homeTeam: 'TBD',
+          awayTeam: 'TBD',
+          date: df.toISOString().split('T')[0],
+          time: defaultTime,
+          venue: defaultVenue,
+          status: 'upcoming',
+        });
+      } else {
+        // 2 Teams - Final
+        const home = assignmentMode === 'auto' ? (teamList[0] || { name: 'TBD' }) : { name: 'TBD' };
+        const away = assignmentMode === 'auto' ? (teamList[1] || { name: 'TBD' }) : { name: 'TBD' };
+        newFixtures.push({
+          id: genId(),
+          round: 'Final',
+          homeTeam: home.name,
+          awayTeam: away.name,
+          date: baseDate.toISOString().split('T')[0],
+          time: defaultTime,
+          venue: defaultVenue,
+          status: 'upcoming',
+        });
+      }
+
+      const finalFixtures = replaceExisting
+        ? newFixtures
+        : [...prev.fixtures, ...newFixtures];
+
+      saveFixturesBatchInDb(finalFixtures).catch(e => console.error('Error saving fixtures to Neon:', e));
+      showToast(`🏆 Generated ${newFixtures.length} tournament bracket fixtures (${bracketSize} Teams setup)!`);
+
+      return {
+        ...prev,
+        fixtures: finalFixtures,
       };
     });
   }, [showToast]);
@@ -283,12 +418,29 @@ export function TournamentProvider({ children }) {
   // ===== Fixtures =====
   const addFixture = useCallback((fixture) => {
     const newFix = { ...fixture, id: genId(), status: fixture.status || 'upcoming' };
-    setData(prev => ({
-      ...prev,
-      fixtures: [...prev.fixtures, newFix],
-    }));
-    upsertFixtureInDb(newFix).catch(e => console.error('Error adding fixture in Neon:', e));
-    showToast(`Knockout Fixture added: ${fixture.homeTeam} vs ${fixture.awayTeam}`);
+    setData(prev => {
+      let fixtures = [...prev.fixtures, newFix];
+      const { fixtures: progressedFixtures, nextMatchesToSave, toastMessage } = processKnockoutProgression(
+        fixtures,
+        newFix,
+        null,
+        genId
+      );
+      fixtures = progressedFixtures;
+
+      upsertFixtureInDb(newFix).catch(e => console.error('Error adding fixture in Neon:', e));
+      if (nextMatchesToSave && nextMatchesToSave.length > 0) {
+        nextMatchesToSave.forEach(m => {
+          upsertFixtureInDb(m).catch(e => console.error('Error saving progressed match to Neon:', e));
+        });
+      }
+
+      showToast(toastMessage || `Knockout Fixture added: ${fixture.homeTeam} vs ${fixture.awayTeam}`);
+      return {
+        ...prev,
+        fixtures,
+      };
+    });
   }, [showToast]);
 
   const updateFixture = useCallback((id, updates) => {
@@ -301,49 +453,14 @@ export function TournamentProvider({ children }) {
       const updatedMatch = { ...prevMatch, ...updates };
       fixtures[matchIdx] = updatedMatch;
 
-      // Knockout Winner Progression (Auto-advance)
-      let nextMatchToSave = null;
-      if (updatedMatch.status === 'completed' && updatedMatch.homeScore !== undefined && updatedMatch.awayScore !== undefined) {
-        if (updatedMatch.nextMatchId) {
-          const h = parseInt(updatedMatch.homeScore, 10);
-          const a = parseInt(updatedMatch.awayScore, 10);
-          let winner = null;
-
-          if (h > a) {
-            winner = updatedMatch.homeTeam;
-          } else if (a > h) {
-            winner = updatedMatch.awayTeam;
-          } else {
-            const hp = updatedMatch.homePenalty !== undefined && updatedMatch.homePenalty !== '' ? parseInt(updatedMatch.homePenalty, 10) : null;
-            const ap = updatedMatch.awayPenalty !== undefined && updatedMatch.awayPenalty !== '' ? parseInt(updatedMatch.awayPenalty, 10) : null;
-            if (hp !== null && ap !== null && !isNaN(hp) && !isNaN(ap)) {
-              if (hp > ap) winner = updatedMatch.homeTeam;
-              else if (ap > hp) winner = updatedMatch.awayTeam;
-              else winner = null;
-            }
-          }
-
-          const nextIdx = fixtures.findIndex(f => f.id === updatedMatch.nextMatchId);
-          if (nextIdx !== -1 && winner) {
-            fixtures[nextIdx] = {
-              ...fixtures[nextIdx],
-              [updatedMatch.nextMatchSlot]: winner
-            };
-            nextMatchToSave = fixtures[nextIdx];
-          }
-        }
-      } else if (prevMatch.status === 'completed' && updatedMatch.status !== 'completed') {
-        if (updatedMatch.nextMatchId) {
-          const nextIdx = fixtures.findIndex(f => f.id === updatedMatch.nextMatchId);
-          if (nextIdx !== -1) {
-            fixtures[nextIdx] = {
-              ...fixtures[nextIdx],
-              [updatedMatch.nextMatchSlot]: 'TBD'
-            };
-            nextMatchToSave = fixtures[nextIdx];
-          }
-        }
-      }
+      // Automatic Knockout Winner Progression across tournament rounds
+      const { fixtures: progressedFixtures, nextMatchesToSave, toastMessage } = processKnockoutProgression(
+        fixtures,
+        updatedMatch,
+        prevMatch,
+        genId
+      );
+      fixtures = progressedFixtures;
 
       // Synchronize results array
       let results = [...(prev.results || [])].filter(r => r.id !== id && r.fixtureId !== id);
@@ -401,16 +518,23 @@ export function TournamentProvider({ children }) {
 
       // Persist to Neon DB
       upsertFixtureInDb(updatedMatch).catch(e => console.error('Error saving fixture to Neon:', e));
-      if (nextMatchToSave) {
-        upsertFixtureInDb(nextMatchToSave).catch(e => console.error('Error saving next match to Neon:', e));
+      if (nextMatchesToSave && nextMatchesToSave.length > 0) {
+        nextMatchesToSave.forEach(m => {
+          upsertFixtureInDb(m).catch(e => console.error('Error saving progressed match to Neon:', e));
+        });
       }
       if (resultToSave) {
         upsertResultInDb(resultToSave).catch(e => console.error('Error saving result to Neon:', e));
       }
 
+      if (toastMessage) {
+        showToast(toastMessage);
+      } else {
+        showToast('Fixture updated successfully!');
+      }
+
       return { ...prev, fixtures, results, scorers };
     });
-    showToast('Fixture updated successfully!');
   }, [showToast]);
 
   const deleteFixture = useCallback((id) => {
@@ -528,7 +652,7 @@ export function TournamentProvider({ children }) {
     dbStatus,
     refreshDb: () => loadDbData(true),
     addTeam, updateTeam, deleteTeam,
-    addFixture, updateFixture, deleteFixture,
+    addFixture, updateFixture, deleteFixture, autoGenerateFixtures,
     addResult, updateResult, deleteResult,
     addScorer, updateScorer, deleteScorer,
     addFinanceTransaction, updateFinanceTransaction, deleteFinanceTransaction,
