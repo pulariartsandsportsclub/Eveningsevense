@@ -24,21 +24,21 @@ const SEED_TEAMS = [
 ];
 
 const SEED_FIXTURES = [
-  { id: 'f1', round: 'Round of 16', homeTeam: 'Real Madrid', awayTeam: 'Ajax', date: '2026-10-15', time: '20:00', venue: 'EMS Stadium', status: 'upcoming', nextMatchId: 'f9', nextMatchSlot: 'homeTeam' },
+  { id: 'f1', round: 'Round of 16', homeTeam: 'Real Madrid', awayTeam: 'Ajax', date: '2026-10-15', time: '20:00', venue: 'Pulari Club Home Ground', status: 'upcoming', nextMatchId: 'f9', nextMatchSlot: 'homeTeam' },
   { id: 'f2', round: 'Round of 16', homeTeam: 'Barcelona', awayTeam: 'Napoli', date: '2026-10-15', time: '22:00', venue: 'Jawaharlal Nehru Stadium', status: 'upcoming', nextMatchId: 'f9', nextMatchSlot: 'awayTeam' },
   { id: 'f3', round: 'Round of 16', homeTeam: 'Bayern Munich', awayTeam: 'Manchester United', date: '2026-10-16', time: '20:00', venue: 'Malappuram Ground', status: 'upcoming', nextMatchId: 'f10', nextMatchSlot: 'homeTeam' },
   { id: 'f4', round: 'Round of 16', homeTeam: 'Manchester City', awayTeam: 'Chelsea', date: '2026-10-16', time: '22:00', venue: 'Chandrasekharan Nair', status: 'upcoming', nextMatchId: 'f10', nextMatchSlot: 'awayTeam' },
-  { id: 'f5', round: 'Round of 16', homeTeam: 'Arsenal', awayTeam: 'Atletico Madrid', date: '2026-10-17', time: '20:00', venue: 'EMS Stadium', status: 'upcoming', nextMatchId: 'f11', nextMatchSlot: 'homeTeam' },
+  { id: 'f5', round: 'Round of 16', homeTeam: 'Arsenal', awayTeam: 'Atletico Madrid', date: '2026-10-17', time: '20:00', venue: 'Pulari Club Home Ground', status: 'upcoming', nextMatchId: 'f11', nextMatchSlot: 'homeTeam' },
   { id: 'f6', round: 'Round of 16', homeTeam: 'Liverpool', awayTeam: 'Borussia Dortmund', date: '2026-10-17', time: '22:00', venue: 'Jawaharlal Nehru Stadium', status: 'upcoming', nextMatchId: 'f11', nextMatchSlot: 'awayTeam' },
   { id: 'f7', round: 'Round of 16', homeTeam: 'Paris Saint-Germain', awayTeam: 'Inter Milan', date: '2026-10-18', time: '20:00', venue: 'Malappuram Ground', status: 'upcoming', nextMatchId: 'f12', nextMatchSlot: 'homeTeam' },
   { id: 'f8', round: 'Round of 16', homeTeam: 'Juventus', awayTeam: 'AC Milan', date: '2026-10-18', time: '22:00', venue: 'Chandrasekharan Nair', status: 'upcoming', nextMatchId: 'f12', nextMatchSlot: 'awayTeam' },
-  { id: 'f9', round: 'Quarter-Finals', homeTeam: 'TBD', awayTeam: 'TBD', date: '2026-10-20', time: '20:00', venue: 'EMS Stadium', status: 'upcoming', nextMatchId: 'f13', nextMatchSlot: 'homeTeam' },
+  { id: 'f9', round: 'Quarter-Finals', homeTeam: 'TBD', awayTeam: 'TBD', date: '2026-10-20', time: '20:00', venue: 'Pulari Club Home Ground', status: 'upcoming', nextMatchId: 'f13', nextMatchSlot: 'homeTeam' },
   { id: 'f10', round: 'Quarter-Finals', homeTeam: 'TBD', awayTeam: 'TBD', date: '2026-10-20', time: '22:00', venue: 'Jawaharlal Nehru Stadium', status: 'upcoming', nextMatchId: 'f13', nextMatchSlot: 'awayTeam' },
   { id: 'f11', round: 'Quarter-Finals', homeTeam: 'TBD', awayTeam: 'TBD', date: '2026-10-21', time: '20:00', venue: 'Malappuram Ground', status: 'upcoming', nextMatchId: 'f14', nextMatchSlot: 'homeTeam' },
   { id: 'f12', round: 'Quarter-Finals', homeTeam: 'TBD', awayTeam: 'TBD', date: '2026-10-21', time: '22:00', venue: 'Chandrasekharan Nair', status: 'upcoming', nextMatchId: 'f14', nextMatchSlot: 'awayTeam' },
-  { id: 'f13', round: 'Semi-Finals', homeTeam: 'TBD', awayTeam: 'TBD', date: '2026-10-24', time: '20:00', venue: 'EMS Stadium', status: 'upcoming', nextMatchId: 'f15', nextMatchSlot: 'homeTeam' },
+  { id: 'f13', round: 'Semi-Finals', homeTeam: 'TBD', awayTeam: 'TBD', date: '2026-10-24', time: '20:00', venue: 'Pulari Club Home Ground', status: 'upcoming', nextMatchId: 'f15', nextMatchSlot: 'homeTeam' },
   { id: 'f14', round: 'Semi-Finals', homeTeam: 'TBD', awayTeam: 'TBD', date: '2026-10-24', time: '22:00', venue: 'Jawaharlal Nehru Stadium', status: 'upcoming', nextMatchId: 'f15', nextMatchSlot: 'awayTeam' },
-  { id: 'f15', round: 'Final', homeTeam: 'TBD', awayTeam: 'TBD', date: '2026-10-28', time: '20:00', venue: 'EMS Stadium', status: 'upcoming' },
+  { id: 'f15', round: 'Final', homeTeam: 'TBD', awayTeam: 'TBD', date: '2026-10-28', time: '20:00', venue: 'Pulari Club Home Ground', status: 'upcoming' },
 ];
 
 export const SEED_FINANCES = [

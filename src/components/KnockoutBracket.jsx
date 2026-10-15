@@ -1,8 +1,45 @@
 import { useTournament } from '../context/TournamentContext';
 import { deduplicateFixturesList, parseStageInfo } from '../utils/bracketProgression';
+import { Trophy, MapPin, Calendar, Clock, CheckCircle2 } from 'lucide-react';
 import './KnockoutBracket.css';
 
-function BracketMatch({ match }) {
+const getTeamBadgeColor = (teamName, teams = []) => {
+  if (!teamName || teamName === 'TBD') return '#94a3b8';
+  const t = teams.find(x => x.name.toLowerCase() === teamName.toLowerCase());
+  return t?.badge || '#156637';
+};
+
+const getTeamAbbr = (teamName) => {
+  if (!teamName || teamName === 'TBD') return '?';
+  const words = teamName.trim().split(/\s+/);
+  if (words.length >= 2) {
+    return (words[0][0] + words[1][0]).toUpperCase();
+  }
+  return teamName.slice(0, 3).toUpperCase();
+};
+
+const formatMatchDate = (dateStr) => {
+  if (!dateStr) return null;
+  try {
+    const d = new Date(dateStr + (dateStr.includes('T') ? '' : 'T00:00:00'));
+    if (isNaN(d.getTime())) return null;
+    return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+  } catch {
+    return null;
+  }
+};
+
+const getPhaseIcon = (stage) => {
+  switch (stage) {
+    case 'final': return '🏆';
+    case 'semi': return '🔥';
+    case 'quarter': return '⚡';
+    case 'r16': return '⚔️';
+    default: return '⚽';
+  }
+};
+
+function BracketMatch({ match, teams = [] }) {
   const isCompleted = match.status === 'completed';
   const isLive = match.status === 'live';
   const isPostponed = match.status === 'postponed';
@@ -29,45 +66,140 @@ function BracketMatch({ match }) {
     }
   }
 
+  const homeColor = getTeamBadgeColor(match.homeTeam, teams);
+  const awayColor = getTeamBadgeColor(match.awayTeam, teams);
+  const matchDateFormatted = formatMatchDate(match.date);
+  const venueLabel = match.venue || 'Pulari Club Home Ground';
+
   return (
-    <div className={`bracket-match glass-card ${isLive ? 'bracket-match--live' : ''} ${isPostponed ? 'bracket-match--postponed' : ''}`}>
-      <div className="bracket-match-header">
-        <span className="bracket-round">{match.round}</span>
-        {isLive && <span className="badge badge-live" style={{ fontSize: '9px', padding: '1px 5px' }}>Live</span>}
-        {isCompleted && (
-          <span className="badge badge-completed" style={{ fontSize: '9px', padding: '1px 5px' }}>
-            {hasPenalties ? 'FT (Pen)' : 'FT'}
-          </span>
-        )}
-        {isPostponed && <span className="badge badge-postponed" style={{ fontSize: '9px', padding: '1px 5px' }}>Postponed</span>}
+    <div className={`bracket-match-card ${isLive ? 'bracket-match--live' : ''} ${isPostponed ? 'bracket-match--postponed' : ''} ${isCompleted ? 'bracket-match--completed' : ''}`}>
+      {/* Sleek Top Gold/Emerald Kasavu Accent Strip */}
+      <div className="bracket-card-notch" />
+
+      {/* Card Header: Round Tag & Status Pill */}
+      <div className="bracket-card-header">
+        <div className="bracket-round-tag">
+          <span className="round-dot" />
+          <span>{match.round}</span>
+        </div>
+
+        <div className="bracket-status-wrap">
+          {isLive && (
+            <span className="bracket-pill pill-live">
+              <span className="live-radar-dot" />
+              LIVE
+            </span>
+          )}
+          {isCompleted && (
+            <span className="bracket-pill pill-completed">
+              <CheckCircle2 size={10} />
+              {hasPenalties ? 'FT (Pen)' : 'FT'}
+            </span>
+          )}
+          {isPostponed && (
+            <span className="bracket-pill pill-postponed">
+              <Clock size={10} />
+              Postponed
+            </span>
+          )}
+          {!isLive && !isCompleted && !isPostponed && (
+            <span className="bracket-pill pill-upcoming">
+              {match.time || 'Upcoming'}
+            </span>
+          )}
+        </div>
       </div>
 
-      <div className="bracket-teams">
-        <div className={`bracket-team ${isHomeWinner ? 'winner' : ''}`}>
-          <span className="bracket-team-name" title={match.homeTeam}>{match.homeTeam}</span>
-          <div className="bracket-score-wrap">
-            {hasPenalties && <span className="bracket-penalty-badge" title="Penalty Shootout">({match.homePenalty})</span>}
-            <span className="bracket-score">{isCompleted ? match.homeScore : '-'}</span>
+      {/* Teams Deck (Stadium Fixture Tabs) */}
+      <div className="bracket-teams-deck">
+        {/* Home Team Tab */}
+        <div className={`bracket-team-tab ${isHomeWinner ? 'team-tab--winner' : ''} ${match.homeTeam === 'TBD' ? 'team-tab--tbd' : ''}`}>
+          <div className="team-tab-identity">
+            <span
+              className="team-tab-crest"
+              style={{ background: `linear-gradient(135deg, ${homeColor}, ${homeColor}cc)` }}
+            >
+              {getTeamAbbr(match.homeTeam)}
+            </span>
+            <span className="team-tab-name" title={match.homeTeam}>
+              {match.homeTeam}
+            </span>
+            {isHomeWinner && (
+              <span className="team-winner-badge" title="Advances to Next Round">
+                <Trophy size={11} className="trophy-gold" />
+              </span>
+            )}
+          </div>
+
+          <div className="team-tab-score-box">
+            {hasPenalties && (
+              <span className="penalty-mini-tag" title="Penalty Shootout">({match.homePenalty}p)</span>
+            )}
+            <span className={`score-digit ${isHomeWinner ? 'score-winner' : ''}`}>
+              {isCompleted || isLive ? (match.homeScore ?? 0) : '—'}
+            </span>
           </div>
         </div>
-        <div className={`bracket-team ${isAwayWinner ? 'winner' : ''}`}>
-          <span className="bracket-team-name" title={match.awayTeam}>{match.awayTeam}</span>
-          <div className="bracket-score-wrap">
-            {hasPenalties && <span className="bracket-penalty-badge" title="Penalty Shootout">({match.awayPenalty})</span>}
-            <span className="bracket-score">{isCompleted ? match.awayScore : '-'}</span>
+
+        {/* Dynamic Stadium VS Separator */}
+        <div className="bracket-teams-divider">
+          <span className="divider-line" />
+          <span className="divider-vs">VS</span>
+          <span className="divider-line" />
+        </div>
+
+        {/* Away Team Tab */}
+        <div className={`bracket-team-tab ${isAwayWinner ? 'team-tab--winner' : ''} ${match.awayTeam === 'TBD' ? 'team-tab--tbd' : ''}`}>
+          <div className="team-tab-identity">
+            <span
+              className="team-tab-crest"
+              style={{ background: `linear-gradient(135deg, ${awayColor}, ${awayColor}cc)` }}
+            >
+              {getTeamAbbr(match.awayTeam)}
+            </span>
+            <span className="team-tab-name" title={match.awayTeam}>
+              {match.awayTeam}
+            </span>
+            {isAwayWinner && (
+              <span className="team-winner-badge" title="Advances to Next Round">
+                <Trophy size={11} className="trophy-gold" />
+              </span>
+            )}
+          </div>
+
+          <div className="team-tab-score-box">
+            {hasPenalties && (
+              <span className="penalty-mini-tag" title="Penalty Shootout">({match.awayPenalty}p)</span>
+            )}
+            <span className={`score-digit ${isAwayWinner ? 'score-winner' : ''}`}>
+              {isCompleted || isLive ? (match.awayScore ?? 0) : '—'}
+            </span>
           </div>
         </div>
       </div>
 
-      <div className="bracket-match-footer">
+      {/* Card Footer: Stadium Venue & Schedule */}
+      <div className="bracket-card-footer">
         {isPostponed ? (
-          <span style={{ color: 'var(--warning, #B45309)', fontWeight: 600 }}>
-            ⏳ {match.postponedReason || 'Match Postponed'}
-          </span>
+          <div className="postponed-notice">
+            <Clock size={11} />
+            <span>{match.postponedReason || 'Match Rescheduled'}</span>
+          </div>
         ) : (
-          <span>
-            {new Date(match.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })} • {match.time}
-          </span>
+          <>
+            <div className="footer-meta-item" title={venueLabel}>
+              <MapPin size={11} className="meta-icon" />
+              <span className="meta-venue-text">
+                {venueLabel.split(',')[0]}
+              </span>
+            </div>
+            {matchDateFormatted && (
+              <div className="footer-meta-item">
+                <Calendar size={11} className="meta-icon" />
+                <span>{matchDateFormatted}</span>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
@@ -75,7 +207,7 @@ function BracketMatch({ match }) {
 }
 
 export default function KnockoutBracket() {
-  const { fixtures = [] } = useTournament();
+  const { fixtures = [], teams = [] } = useTournament();
 
   if (!fixtures || fixtures.length === 0) {
     return (
@@ -144,14 +276,23 @@ export default function KnockoutBracket() {
             }
 
             return (
-              <div key={phase.name} className={`bracket-column ${phase.isEmpty ? 'bracket-column--empty' : ''}`}>
-                <h3 className="bracket-column-title">{phase.name}</h3>
+              <div key={phase.name} className={`bracket-column ${phase.isEmpty ? 'bracket-column--empty' : ''} ${phase.stage === 'final' ? 'bracket-column--final' : ''}`}>
+                <div className={`bracket-column-header ${phase.stage === 'final' ? 'column-header--final' : ''}`}>
+                  <div className="phase-header-badge">
+                    <span className="phase-icon">{getPhaseIcon(phase.stage)}</span>
+                    <span className="phase-title">{phase.name}</span>
+                  </div>
+                  <span className="phase-match-count">
+                    {phase.matches.length} {phase.matches.length === 1 ? 'Match' : 'Matches'}
+                  </span>
+                </div>
+
                 <div className="bracket-matches">
                   {pairs.map((pair, idx) => (
                     <div key={idx} className={`bracket-match-pair ${pair.length === 1 ? 'single-match' : ''}`}>
                       {pair.map((m) => (
                         <div key={m.id} className="bracket-match-wrapper">
-                          <BracketMatch match={m} />
+                          <BracketMatch match={m} teams={teams} />
                         </div>
                       ))}
                     </div>
@@ -165,3 +306,4 @@ export default function KnockoutBracket() {
     </div>
   );
 }
+

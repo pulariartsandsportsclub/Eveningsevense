@@ -16,6 +16,7 @@ const COMMON_POSTPONE_REASONS = [
 ];
 
 const KERALA_VENUES = [
+  'Pulari Club Home Ground',
   'EMS Stadium, Kozhikode',
   'Jawaharlal Nehru Stadium, Kochi',
   'Malappuram Sevens Ground',
@@ -350,7 +351,7 @@ export default function ResultsAdmin() {
       awayPenalty: fix.awayPenalty !== undefined ? fix.awayPenalty : '',
       date: fix.date || '',
       time: fix.time || '16:30',
-      venue: fix.venue || 'EMS Stadium, Kozhikode',
+      venue: fix.venue || 'Pulari Club Home Ground',
       postponedReason: fix.postponedReason || '',
       scorers: Array.isArray(fix.scorers) ? [...fix.scorers] : [],
       newScorerName: '',

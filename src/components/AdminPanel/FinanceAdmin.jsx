@@ -486,7 +486,7 @@ export default function FinanceAdmin() {
                 <input
                   type="text"
                   required
-                  placeholder={form.type === 'income' ? 'e.g. Malabar Gold Title Sponsorship' : 'e.g. EMS Stadium Floodlights & Ground Rent'}
+                  placeholder={form.type === 'income' ? 'e.g. Malabar Gold Title Sponsorship' : 'e.g. Pulari Club Home Ground Floodlights & Maintenance'}
                   value={form.title}
                   onChange={(e) => setForm({ ...form, title: e.target.value })}
                 />

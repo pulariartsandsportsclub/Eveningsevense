@@ -26,6 +26,7 @@ import {
 const TournamentContext = createContext(null);
 
 const KERALA_VENUES = [
+  'Pulari Club Home Ground',
   'EMS Stadium, Kozhikode',
   'Jawaharlal Nehru Stadium, Kochi',
   'Malappuram Sevens Ground',
@@ -188,7 +189,7 @@ export function TournamentProvider({ children }) {
         shuffle = false,
         replaceExisting = true,
         startDate = new Date().toISOString().split('T')[0],
-        defaultVenue = 'EMS Stadium, Kozhikode',
+        defaultVenue = 'Pulari Club Home Ground',
         defaultTime = '16:30',
       } = options;
 

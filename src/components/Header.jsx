@@ -1,6 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { Trophy, Users, Calendar, CheckCircle, BarChart2, Settings, Database, RefreshCw } from 'lucide-react';
-import { useTournament } from '../context/TournamentContext';
+import { Trophy, Users, Calendar, CheckCircle, BarChart2, Settings } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import './Header.css';
 
@@ -14,17 +13,7 @@ const NAV_ITEMS = [
 ];
 
 export default function Header() {
-  const { dbStatus, refreshDb } = useTournament();
   const { isAuthenticated } = useAuth();
-
-  const getStatusText = () => {
-    switch (dbStatus) {
-      case 'connected': return 'Neon DB Live';
-      case 'syncing': return 'Syncing...';
-      case 'connecting': return 'Connecting...';
-      default: return 'Offline Mode';
-    }
-  };
 
   return (
     <>
@@ -40,21 +29,6 @@ export default function Header() {
           </NavLink>
 
           <div className="header-right">
-            {/* Database Live Status Badge */}
-            <button
-              type="button"
-              className={`db-status-badge db-status-${dbStatus}`}
-              onClick={refreshDb}
-              title={`Neon PostgreSQL: ${getStatusText()} (Click to Sync)`}
-            >
-              <Database size={13} className="db-icon" />
-              <span className="db-pulse-dot" />
-              <span className="db-status-label">{getStatusText()}</span>
-              {dbStatus === 'syncing' ? (
-                <RefreshCw size={11} className="db-sync-spin" />
-              ) : null}
-            </button>
-
             <nav className="header-nav">
               {NAV_ITEMS.map(({ to, label, icon: Icon, end }) => (
                 <NavLink

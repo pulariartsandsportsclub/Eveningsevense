@@ -14,7 +14,7 @@ const EMPTY_FORM = {
   awayTeam: '',
   date: new Date().toISOString().split('T')[0],
   time: '16:30',
-  venue: 'EMS Stadium, Kozhikode',
+  venue: 'Pulari Club Home Ground',
   status: 'upcoming',
   homeScore: '',
   awayScore: '',
@@ -46,6 +46,7 @@ const KNOCKOUT_ROUNDS = [
 ];
 
 const KERALA_VENUES = [
+  'Pulari Club Home Ground',
   'EMS Stadium, Kozhikode',
   'Jawaharlal Nehru Stadium, Kochi',
   'Malappuram Sevens Ground',
@@ -74,7 +75,7 @@ export default function FixturesAdmin() {
     shuffle: false,
     replaceExisting: true,
     startDate: new Date().toISOString().split('T')[0],
-    venue: 'EMS Stadium, Kozhikode',
+    venue: 'Pulari Club Home Ground',
     time: '16:30',
   });
 
@@ -685,7 +686,7 @@ export default function FixturesAdmin() {
               <MapPin size={15} className="input-icon" />
               <input
                 className={`form-input ${errors.venue ? 'input-error' : ''}`}
-                placeholder="e.g. EMS Stadium, Kozhikode"
+                placeholder="e.g. Pulari Club Home Ground"
                 list="fixture-venues"
                 {...f('venue')}
               />

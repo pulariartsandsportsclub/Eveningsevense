@@ -323,7 +323,7 @@ export function processKnockoutProgression(fixtures = [], updatedMatch, prevMatc
         awayTeam: targetSlot === 'awayTeam' ? newWinner : 'TBD',
         date: nextDate,
         time: '16:30',
-        venue: updatedMatch.venue || 'EMS Stadium, Kozhikode',
+        venue: updatedMatch.venue || 'Pulari Club Home Ground',
         status: 'upcoming',
       };
 
