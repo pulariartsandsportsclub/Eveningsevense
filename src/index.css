@@ -1,69 +1,72 @@
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=DM+Mono:wght@500;700&family=Lora:ital,wght@0,500;0,600;0,700;1,400&family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Cinzel:wght@700;800&family=DM+Mono:wght@500;700&display=swap');
 
 /* ==========================================================================
-   VINTAGE FOOTBALL HERITAGE & GAZETTE THEME
-   Inspired by classic 1970s/80s World Cup match programmes, Panini cards,
-   parchment gazette records, racing green blazers, and antique brass trophy gold.
+   MODERN PULARI TOURNAMENT DESIGN SYSTEM
+   - Primary: Deep Forest Green (#0E4829, #082C18)
+   - Background: Warm Cream / Off-White (#F8F5EE, #FCFAF5)
+   - Accent: Elegant Gold (#D4AF37, #C59828)
+   - Text: Dark Green / Near-Black (#122116)
+   - Mobile-First, Touch-Friendly, Accessible & Clean
    ========================================================================== */
 
 :root {
-  /* Warm aged paper parchment background tones */
-  --bg-primary: #F5F1E6;
-  --bg-secondary: #FAF7EF;
-  --bg-tertiary: #E8E0CE;
-  --surface: #FCFAF4;
-  --surface-hover: #F2EBDA;
+  /* Warm cream & off-white backgrounds */
+  --bg-primary: #F8F5EE;
+  --bg-secondary: #FFFFFF;
+  --bg-tertiary: #EFE9DB;
+  --surface: #FFFFFF;
+  --surface-hover: #FBF9F4;
 
-  /* Ruled sepia & vintage ink borders */
-  --border: #D8CEB8;
+  /* Subtle border tones */
+  --border: #E2DAC8;
   --border-bright: #0E4829;
-  --border-double: #C9BA9C;
+  --border-subtle: rgba(226, 218, 200, 0.7);
 
-  /* Classic Racing / Forest Pitch Green */
+  /* Deep Forest Green */
   --primary: #0E4829;
-  --primary-hover: #082E19;
+  --primary-hover: #08331D;
+  --primary-dark: #062313;
   --primary-dim: rgba(14, 72, 41, 0.08);
-  --primary-glow: 0 4px 16px rgba(14, 72, 41, 0.18);
+  --primary-glow: 0 6px 20px rgba(14, 72, 41, 0.16);
 
-  /* Antique Gilded Trophy Gold & Brass */
-  --gold: #A67520;
+  /* Elegant Gold */
+  --gold: #C59828;
   --gold-bright: #D4AF37;
-  --gold-dim: rgba(166, 117, 32, 0.12);
-  --gold-glow: 0 4px 18px rgba(166, 117, 32, 0.2);
+  --gold-light: #F5D061;
+  --gold-dim: rgba(212, 175, 55, 0.12);
+  --gold-glow: 0 4px 16px rgba(212, 175, 55, 0.22);
 
-  /* Vintage Accents (Oxblood / Heritage Red / Leather Bronze) */
-  --silver: #5E665D;
-  --bronze: #8F542A;
-  --accent: #8E2319;
-  --accent-dim: rgba(142, 35, 25, 0.09);
-  --danger: #8E2319;
-  --danger-dim: rgba(142, 35, 25, 0.10);
-  --warning: #A36412;
+  /* Accent & Status */
+  --danger: #B92B27;
+  --danger-dim: rgba(185, 43, 39, 0.08);
+  --warning: #B45309;
+  --warning-dim: rgba(180, 83, 9, 0.08);
+  --success: #0E4829;
 
-  /* Aged Indian ink typography */
-  --text-primary: #1C221D;
-  --text-secondary: #4F554B;
-  --text-muted: #787E72;
+  /* Modern Near-Black / Dark Green Typography */
+  --text-primary: #122116;
+  --text-secondary: #48574D;
+  --text-muted: #74857A;
 
-  /* Classic sharp press-print borders (retro cards, not rounded bubbles) */
-  --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-lg: 10px;
-  --radius-xl: 14px;
-  --radius-full: 999px;
+  /* Sharp Rectangular System (All boxes & cards perfect rectangles) */
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-full: 0px;
 
-  /* Letterpress & paper drop shadows */
-  --shadow-sm: 0 1px 3px rgba(36, 30, 20, 0.07), 0 2px 6px rgba(36, 30, 20, 0.04);
-  --shadow-md: 0 4px 16px rgba(36, 30, 20, 0.10), inset 0 0 0 1px rgba(255, 255, 255, 0.6);
-  --shadow-lg: 0 10px 30px rgba(36, 30, 20, 0.14), inset 0 0 0 1px rgba(212, 175, 55, 0.25);
+  /* Soft Ambient Shadows */
+  --shadow-sm: 0 1px 3px rgba(14, 72, 41, 0.04), 0 2px 6px rgba(0, 0, 0, 0.02);
+  --shadow-md: 0 4px 16px rgba(14, 72, 41, 0.07), 0 1px 3px rgba(0, 0, 0, 0.03);
+  --shadow-lg: 0 12px 32px rgba(14, 72, 41, 0.11), 0 2px 6px rgba(0, 0, 0, 0.04);
+  --shadow-gold: 0 4px 14px rgba(212, 175, 55, 0.25);
 
-  --transition: all 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
+  --transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
   --transition-fast: all 0.14s ease;
 
-  /* Heritage Fonts */
+  /* Fonts */
+  --font-main: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-serif-display: 'Cinzel', serif;
-  --font-serif-heading: 'Newsreader', 'Lora', Georgia, serif;
-  --font-serif-body: 'Lora', Georgia, serif;
   --font-mono-scoreboard: 'DM Mono', monospace;
 }
 
@@ -87,12 +90,8 @@ body {
   overflow-x: hidden;
   color: var(--text-primary);
   background: var(--bg-primary);
-  /* Subtle parchment grain background pattern */
-  background-image: 
-    radial-gradient(circle at 50% 0%, rgba(212, 175, 55, 0.04) 0%, transparent 60%),
-    linear-gradient(180deg, #F9F6EE 0%, #F3EEE0 100%);
-  font-family: var(--font-serif-body);
-  line-height: 1.55;
+  font-family: var(--font-main);
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -110,18 +109,17 @@ main {
 }
 
 ::-webkit-scrollbar {
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
   background: var(--bg-tertiary);
-  border-left: 1px solid var(--border);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--border-double);
-  border: 1px solid var(--border);
+  background: var(--border);
+  border-radius: var(--radius-full);
 }
 
 ::-webkit-scrollbar-thumb:hover {
@@ -134,11 +132,11 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: var(--font-serif-heading);
+  font-family: var(--font-main);
   color: var(--text-primary);
-  letter-spacing: -0.01em;
-  line-height: 1.2;
-  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+  font-weight: 800;
 }
 
 a {
@@ -159,11 +157,11 @@ button {
   touch-action: manipulation;
 }
 
-/* Heritage Gazette Cards */
+/* Modern Clean Cards */
 .glass-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
   transition: var(--transition);
   position: relative;
@@ -175,43 +173,41 @@ button {
   box-shadow: var(--shadow-md);
 }
 
-/* Classic Letterpress Buttons */
+/* Modern Action Buttons */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 9px 18px;
-  border-radius: var(--radius-sm);
-  font-family: var(--font-serif-display);
-  font-size: 12px;
+  padding: 10px 18px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
   font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  letter-spacing: 0.01em;
   transition: var(--transition-fast);
   white-space: nowrap;
   border: 1px solid transparent;
 }
 
 .btn-primary {
-  color: #FFFDF8;
+  color: #FFFFFF;
   background: var(--primary);
-  border-color: #062313;
-  box-shadow: 0 3px 10px rgba(14, 72, 41, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  border-color: var(--primary-dark);
+  box-shadow: 0 3px 12px rgba(14, 72, 41, 0.25);
 }
 
 .btn-primary:hover {
   background: var(--primary-hover);
   border-color: var(--gold-bright);
   transform: translateY(-1px);
-  box-shadow: 0 5px 14px rgba(14, 72, 41, 0.35);
+  box-shadow: 0 5px 16px rgba(14, 72, 41, 0.32);
 }
 
 .btn-ghost {
   color: var(--text-primary);
-  background: var(--bg-secondary);
+  background: var(--surface);
   border: 1px solid var(--border);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--shadow-sm);
 }
 
 .btn-ghost:hover {
@@ -223,38 +219,38 @@ button {
 .btn-danger {
   background: var(--danger-dim);
   color: var(--danger);
-  border: 1px solid rgba(142, 35, 25, 0.3);
+  border: 1px solid rgba(185, 43, 39, 0.25);
 }
 
 .btn-danger:hover {
   background: var(--danger);
-  color: #FFFDF8;
+  color: #FFFFFF;
 }
 
 .btn-sm {
-  padding: 5px 12px;
-  font-size: 11px;
+  padding: 6px 12px;
+  font-size: 12px;
+  border-radius: var(--radius-sm);
 }
 
-/* Vintage Seals & Matchday Badges */
+/* Modern Status Badges */
 .badge {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 3px 9px;
-  border-radius: var(--radius-sm);
-  font-family: var(--font-serif-display);
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: 11px;
   font-weight: 700;
-  font-size: 10px;
-  letter-spacing: 0.07em;
+  letter-spacing: 0.03em;
   text-transform: uppercase;
   border: 1px solid transparent;
 }
 
 .badge-live {
-  color: #8E2319;
-  background: rgba(142, 35, 25, 0.08);
-  border: 1px solid rgba(142, 35, 25, 0.3);
+  color: #B92B27;
+  background: rgba(185, 43, 39, 0.1);
+  border: 1px solid rgba(185, 43, 39, 0.25);
 }
 
 .badge-live::before {
@@ -263,29 +259,29 @@ button {
   height: 6px;
   border-radius: 50%;
   background: currentColor;
-  animation: pulseDot 1.3s infinite;
+  animation: pulseDot 1.2s infinite;
 }
 
 .badge-upcoming {
   color: var(--gold);
   background: var(--gold-dim);
-  border: 1px solid rgba(166, 117, 32, 0.3);
+  border: 1px solid rgba(212, 175, 55, 0.3);
 }
 
 .badge-completed,
 .badge-primary {
   color: var(--primary);
   background: var(--primary-dim);
-  border: 1px solid rgba(14, 72, 41, 0.3);
+  border: 1px solid rgba(14, 72, 41, 0.22);
 }
 
 .badge-postponed {
   color: var(--warning);
-  background: rgba(163, 100, 18, 0.1);
-  border: 1px solid rgba(163, 100, 18, 0.3);
+  background: var(--warning-dim);
+  border: 1px solid rgba(180, 83, 9, 0.25);
 }
 
-/* Forms with parchment ledger styling */
+/* Forms */
 .form-group {
   display: flex;
   flex-direction: column;
@@ -293,22 +289,18 @@ button {
 }
 
 .form-label {
-  font-family: var(--font-serif-display);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
   color: var(--text-secondary);
 }
 
 .form-input {
   width: 100%;
   padding: 10px 14px;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   color: var(--text-primary);
-  background: #FFFDF9;
+  background: #FFFFFF;
   border: 1px solid var(--border);
-  font-family: var(--font-serif-body);
   font-size: 14px;
   transition: var(--transition-fast);
 }
@@ -320,7 +312,7 @@ button {
 }
 
 .form-input option {
-  background: #FFFDF9;
+  background: #FFFFFF;
   color: var(--text-primary);
 }
 
@@ -333,41 +325,27 @@ button {
 .page {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 34px 24px 72px;
+  padding: 24px 20px 84px;
   width: 100%;
 }
 
 .page-header {
-  margin-bottom: 26px;
-  border-bottom: 2px solid var(--border);
-  padding-bottom: 14px;
-  position: relative;
-}
-
-.page-header::after {
-  content: "";
-  position: absolute;
-  bottom: -4px;
-  left: 0;
-  width: 80px;
-  height: 2px;
-  background: var(--gold);
+  margin-bottom: 22px;
+  border-bottom: 1.5px solid var(--border);
+  padding-bottom: 12px;
 }
 
 .page-title {
-  font-family: var(--font-serif-display);
-  font-size: clamp(24px, 3.8vw, 38px);
+  font-size: clamp(22px, 4vw, 32px);
   font-weight: 800;
-  letter-spacing: -0.01em;
-  color: var(--primary);
-  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
 }
 
 .page-subtitle {
-  margin-top: 6px;
-  font-size: 14.5px;
+  margin-top: 4px;
+  font-size: 14px;
   color: var(--text-secondary);
-  font-style: italic;
 }
 
 .grid-2 {
@@ -390,18 +368,17 @@ button {
 
 .empty-state {
   display: flex;
-  min-height: 160px;
+  min-height: 140px;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: 10px;
   text-align: center;
   color: var(--text-muted);
-  border: 1px dashed var(--border-double);
-  border-radius: var(--radius-md);
+  border: 1.5px dashed var(--border);
+  border-radius: var(--radius-lg);
   background: var(--surface);
-  padding: 30px 16px;
-  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.02);
+  padding: 26px 16px;
 }
 
 .empty-state svg {
@@ -411,7 +388,7 @@ button {
 /* Toast Notifications */
 .toast-container {
   position: fixed;
-  right: 24px;
+  right: 20px;
   bottom: 28px;
   z-index: 9999;
 }
@@ -419,12 +396,11 @@ button {
 .toast {
   padding: 12px 18px;
   color: var(--text-primary);
-  background: #FFFDF9;
+  background: #FFFFFF;
   border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   box-shadow: var(--shadow-lg);
   animation: slideInRight 0.3s ease;
-  font-family: var(--font-serif-body);
   font-size: 13.5px;
   font-weight: 600;
 }
@@ -448,7 +424,7 @@ button {
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(12px);
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
@@ -483,34 +459,34 @@ button {
 }
 
 .animate-fade-up {
-  animation: fadeInUp 0.4s ease both;
+  animation: fadeInUp 0.35s ease both;
 }
 
 .animate-fade {
-  animation: fadeIn 0.3s ease both;
+  animation: fadeIn 0.25s ease both;
 }
 
 .animate-scale {
   animation: scaleIn 0.2s ease both;
 }
 
-/* Responsive Overrides & Mobile Layout */
+/* Mobile Responsive Tweaks */
 @media (max-width: 768px) {
   .page {
-    padding: 18px 14px calc(76px + env(safe-area-inset-bottom, 0px));
+    padding: 16px 14px calc(78px + env(safe-area-inset-bottom, 0px));
   }
 
   .page-header {
-    margin-bottom: 18px;
+    margin-bottom: 16px;
   }
 
   .page-title {
-    font-size: clamp(22px, 6vw, 30px);
+    font-size: clamp(20px, 6vw, 26px);
   }
 
   .toast-container {
-    left: 16px;
-    right: 16px;
+    left: 14px;
+    right: 14px;
     bottom: calc(72px + env(safe-area-inset-bottom, 0px));
   }
 
@@ -523,3 +499,4 @@ button {
     font-size: 16px;
   }
 }
+

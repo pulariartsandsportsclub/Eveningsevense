@@ -24,17 +24,19 @@ export function ResultCard({ result, compact = false }) {
   return (
     <div className={`match-card glass-card result-card ${compact ? 'match-card--compact' : ''}`}>
       <div className="match-meta">
-        <span className="badge badge-completed">
-          {hasPenalties ? 'FT (PEN)' : 'FT'}
-        </span>
-        {result.round && <span className="badge badge-primary" style={{ fontSize: '10px' }}>{result.round}</span>}
+        <div className="match-badges">
+          <span className="badge badge-completed">
+            {hasPenalties ? 'FT (PEN)' : 'FT'}
+          </span>
+          {result.round && <span className="badge badge-stage">{result.round}</span>}
+        </div>
         <span className="match-date">{new Date(result.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
       </div>
       <div className="match-teams">
         <div className={`team-side ${winner === 'home' ? 'team-side--winner' : ''}`}>
           <span className="team-name">{result.homeTeam}</span>
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <div className="match-center">
           <div className="score-block">
             <span className="score-home">{result.homeScore}</span>
             <span className="score-sep">:</span>
@@ -80,13 +82,15 @@ export function FixtureCard({ fixture, compact = false }) {
   return (
     <div className={`match-card glass-card fixture-card ${isPostponed ? 'fixture-card--postponed' : ''} ${compact ? 'match-card--compact' : ''}`}>
       <div className="match-meta">
-        {isLive && <span className="badge badge-live">Live</span>}
-        {isPostponed && <span className="badge badge-postponed">Postponed</span>}
-        {isCompleted && <span className="badge badge-completed">{hasPenalties ? 'FT (Pen)' : 'FT'}</span>}
-        {!isLive && !isPostponed && !isCompleted && <span className="badge badge-upcoming">Upcoming</span>}
-        {fixture.round && <span className="badge badge-primary" style={{ fontSize: '10px' }}>{fixture.round}</span>}
+        <div className="match-badges">
+          {isLive && <span className="badge badge-live">Live</span>}
+          {isPostponed && <span className="badge badge-postponed">Postponed</span>}
+          {isCompleted && <span className="badge badge-completed">{hasPenalties ? 'FT (Pen)' : 'FT'}</span>}
+          {!isLive && !isPostponed && !isCompleted && <span className="badge badge-upcoming">Upcoming</span>}
+          {fixture.round && <span className="badge badge-stage">{fixture.round}</span>}
+        </div>
         <span className="match-date">
-          {isToday ? 'Today' : new Date(fixture.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+          {isToday ? 'Today' : new Date(fixture.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
           {fixture.time ? ` · ${fixture.time}` : ''}
         </span>
       </div>
@@ -94,7 +98,7 @@ export function FixtureCard({ fixture, compact = false }) {
         <div className="team-side">
           <span className="team-name">{fixture.homeTeam}</span>
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <div className="match-center">
           {isCompleted ? (
             <>
               <div className="score-block">
@@ -109,7 +113,7 @@ export function FixtureCard({ fixture, compact = false }) {
               )}
             </>
           ) : (
-            <div className="score-block fixture-vs">
+            <div className="fixture-vs-badge">
               <span className="vs-text">VS</span>
             </div>
           )}
