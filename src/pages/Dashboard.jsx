@@ -1,6 +1,6 @@
 import { useTournament } from '../context/TournamentContext';
 import { ResultCard, FixtureCard } from '../components/MatchCard';
-import { Calendar, MapPin, Trophy, Users, CheckCircle, ChevronRight, ArrowRight } from 'lucide-react';
+import { Calendar, MapPin, Trophy, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import './Dashboard.css';
 
@@ -170,50 +170,6 @@ export default function Dashboard() {
           )}
         </section>
       </div>
-
-      {/* ===== QUICK ACCESS SECTION ===== */}
-      <section className="quick-access-section" aria-label="Tournament Navigation">
-        <div className="section-header">
-          <div className="section-title-wrap">
-            <h2 className="section-title">Quick Access</h2>
-            <span className="section-sub">Explore the tournament</span>
-          </div>
-        </div>
-        <div className="quick-access-grid">
-          <Link to="/fixtures" className="quick-card">
-            <div className="quick-card-icon-wrap icon-bracket">
-              <Trophy size={20} />
-            </div>
-            <div className="quick-card-body">
-              <span className="quick-card-title">Tournament Bracket</span>
-              <span className="quick-card-sub">All knockout rounds & fixtures</span>
-            </div>
-            <ChevronRight size={18} className="quick-card-arrow" />
-          </Link>
-
-          <Link to="/teams" className="quick-card">
-            <div className="quick-card-icon-wrap icon-teams">
-              <Users size={20} />
-            </div>
-            <div className="quick-card-body">
-              <span className="quick-card-title">Teams & Squads</span>
-              <span className="quick-card-sub">Contenders, players & stats</span>
-            </div>
-            <ChevronRight size={18} className="quick-card-arrow" />
-          </Link>
-
-          <Link to="/results" className="quick-card">
-            <div className="quick-card-icon-wrap icon-results">
-              <CheckCircle size={20} />
-            </div>
-            <div className="quick-card-body">
-              <span className="quick-card-title">Results & Standings</span>
-              <span className="quick-card-sub">Match summaries & scores</span>
-            </div>
-            <ChevronRight size={18} className="quick-card-arrow" />
-          </Link>
-        </div>
-      </section>
     </div>
   );
 }
