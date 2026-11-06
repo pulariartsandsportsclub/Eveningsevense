@@ -155,30 +155,6 @@
     display: none;
   }
 
-  /* Mobile Header Admin Pill */
-  .mobile-admin-header-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 12px;
-    background: rgba(0, 155, 98, 0.1);
-    color: var(--primary);
-    border: 1px solid rgba(0, 155, 98, 0.25);
-    border-radius: 999px;
-    font-size: 12px;
-    font-weight: 700;
-    text-decoration: none;
-    touch-action: manipulation;
-    -webkit-tap-highlight-color: transparent;
-    transition: var(--transition-fast);
-  }
-
-  .mobile-admin-header-btn:active {
-    transform: scale(0.94);
-    background: var(--primary);
-    color: #FFFFFF;
-  }
-
   /* Show fixed bottom navigation bar (dynamically fluid for any screen & tab count) */
   .mobile-bottom-nav {
     position: fixed;

@@ -10,7 +10,7 @@ const PUBLIC_NAV_ITEMS = [
   { to: '/results', label: 'Results', icon: CheckCircle },
 ];
 
-const ADMIN_NAV_ITEM = { to: '/admin', label: 'Admin', icon: Settings };
+const ADMIN_NAV_ITEM = { to: '/xyzabc', label: 'Admin', icon: Settings };
 
 export default function Header() {
   const { isAuthenticated } = useAuth();
@@ -44,21 +44,12 @@ export default function Header() {
                 >
                   <Icon size={16} />
                   <span>{label}</span>
-                  {to === '/admin' && isAuthenticated && (
+                  {to === '/xyzabc' && isAuthenticated && (
                     <span className="admin-active-indicator" title="Admin logged in" />
                   )}
                 </NavLink>
               ))}
             </nav>
-
-            {/* Mobile Header Admin shortcut button when authenticated */}
-            {isAuthenticated && (
-              <NavLink to="/admin" className="mobile-admin-header-btn" title="Admin Portal">
-                <Settings size={15} />
-                <span>Admin</span>
-                <span className="admin-active-indicator" />
-              </NavLink>
-            )}
           </div>
         </div>
       </header>
@@ -74,7 +65,7 @@ export default function Header() {
           >
             <div className="mobile-nav-icon-wrap" style={{ position: 'relative' }}>
               <Icon size={19} />
-              {to === '/admin' && isAuthenticated && (
+              {to === '/xyzabc' && isAuthenticated && (
                 <span className="mobile-admin-active-dot" />
               )}
             </div>

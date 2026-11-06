@@ -22,7 +22,8 @@ export default function App() {
               <Route path="/fixtures" element={<Fixtures />} />
               <Route path="/results" element={<Results />} />
               <Route path="/leaderboard" element={<Navigate to="/" replace />} />
-              <Route path="/admin" element={<Admin />} />
+              <Route path="/admin" element={<Navigate to="/" replace />} />
+              <Route path="/xyzabc" element={<Admin />} />
             </Routes>
           </main>
           <Toast />

@@ -221,7 +221,7 @@ export default function KnockoutBracket() {
             : 'Fixtures and tournament bracket will appear once scheduled by tournament officials.'}
         </p>
         {isAuthenticated && (
-          <a href="/admin?tab=teams" className="btn btn-primary btn-sm" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+          <a href="/xyzabc?tab=teams" className="btn btn-primary btn-sm" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
             Add Teams in Admin →
           </a>
         )}
