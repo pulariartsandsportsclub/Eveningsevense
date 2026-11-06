@@ -1,25 +1,15 @@
 import { NavLink } from 'react-router-dom';
-import { Trophy, Users, Calendar, CheckCircle, Settings } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
+import { Trophy, Users, Calendar, CheckCircle } from 'lucide-react';
 import './Header.css';
 
-const PUBLIC_NAV_ITEMS = [
+const NAV_ITEMS = [
   { to: '/', label: 'Dashboard', icon: Trophy, end: true },
   { to: '/teams', label: 'Teams', icon: Users },
   { to: '/fixtures', label: 'Fixtures', icon: Calendar },
   { to: '/results', label: 'Results', icon: CheckCircle },
 ];
 
-const ADMIN_NAV_ITEM = { to: '/xyzabc', label: 'Admin', icon: Settings };
-
 export default function Header() {
-  const { isAuthenticated } = useAuth();
-
-  // Show Admin button in navigation only if the administrator is currently logged in
-  const navItems = isAuthenticated
-    ? [...PUBLIC_NAV_ITEMS, ADMIN_NAV_ITEM]
-    : PUBLIC_NAV_ITEMS;
-
   return (
     <>
       <header className="header">
@@ -35,7 +25,7 @@ export default function Header() {
 
           <div className="header-right">
             <nav className="header-nav">
-              {navItems.map(({ to, label, icon: Icon, end }) => (
+              {NAV_ITEMS.map(({ to, label, icon: Icon, end }) => (
                 <NavLink
                   key={to}
                   to={to}
@@ -44,9 +34,6 @@ export default function Header() {
                 >
                   <Icon size={16} />
                   <span>{label}</span>
-                  {to === '/xyzabc' && isAuthenticated && (
-                    <span className="admin-active-indicator" title="Admin logged in" />
-                  )}
                 </NavLink>
               ))}
             </nav>
@@ -56,7 +43,7 @@ export default function Header() {
 
       {/* Mobile Native-Style Bottom Navigation Bar */}
       <nav className="mobile-bottom-nav" aria-label="Mobile Navigation">
-        {navItems.map(({ to, label, icon: Icon, end }) => (
+        {NAV_ITEMS.map(({ to, label, icon: Icon, end }) => (
           <NavLink
             key={to}
             to={to}
@@ -65,9 +52,6 @@ export default function Header() {
           >
             <div className="mobile-nav-icon-wrap" style={{ position: 'relative' }}>
               <Icon size={19} />
-              {to === '/xyzabc' && isAuthenticated && (
-                <span className="mobile-admin-active-dot" />
-              )}
             </div>
             <span className="mobile-nav-label">{label}</span>
           </NavLink>
