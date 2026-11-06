@@ -1,13 +1,13 @@
-/* ===== ENHANCED TEAM CARD STYLING ===== */
+/* ===== PANINI STICKER & VINTAGE COLLECTOR CARD STYLING ===== */
 .team-pro-card {
   position: relative;
   display: flex;
   flex-direction: column;
   padding: 18px 20px;
-  background: #FFFFFF !important;
-  border: 1px solid var(--border) !important;
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
+  background: var(--surface) !important;
+  border: 1.5px solid var(--border) !important;
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm), inset 0 0 0 1px rgba(212, 175, 55, 0.25);
   transition: var(--transition);
   cursor: pointer;
   overflow: hidden;
@@ -16,13 +16,13 @@
 }
 
 .team-pro-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 30px rgba(19, 35, 27, 0.12);
-  border-color: var(--border-bright) !important;
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md), inset 0 0 0 1px var(--gold);
+  border-color: var(--gold) !important;
 }
 
 .team-pro-card:focus-visible {
-  outline: 3px solid var(--primary-dim);
+  outline: 2px solid var(--gold);
   border-color: var(--primary) !important;
 }
 
@@ -33,7 +33,7 @@
   left: 0;
   right: 0;
   height: 3px;
-  opacity: 0.9;
+  opacity: 0.95;
   transition: height 0.25s ease;
 }
 
@@ -50,15 +50,16 @@
 }
 
 .team-card-index {
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-mono-scoreboard);
   font-size: 11px;
   font-weight: 700;
   color: var(--text-muted);
+  letter-spacing: 0.05em;
 }
 
 .team-card-status .badge {
-  font-size: 9.5px;
-  padding: 2px 8px;
+  font-size: 9px;
+  padding: 2px 7px;
 }
 
 /* Main Crest + Title */
@@ -74,17 +75,18 @@
   width: 48px;
   height: 48px;
   place-items: center;
-  border-radius: 14px;
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 22px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-serif-display);
+  font-size: 20px;
   font-weight: 800;
   flex-shrink: 0;
-  border: 1.5px solid rgba(255, 255, 255, 0.35);
+  border: 1.5px solid var(--gold);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   transition: var(--transition);
 }
 
 .team-pro-card:hover .team-pro-crest {
-  transform: scale(1.05);
+  transform: scale(1.04);
 }
 
 .team-pro-title-wrap {
@@ -93,9 +95,10 @@
 }
 
 .team-pro-title {
-  font-size: 16px;
-  font-weight: 800;
-  letter-spacing: -0.02em;
+  font-family: var(--font-serif-heading);
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
   color: var(--text-primary);
   margin-bottom: 3px;
   white-space: nowrap;
@@ -109,6 +112,7 @@
   gap: 5px;
   font-size: 12px;
   font-weight: 600;
+  font-style: italic;
   color: var(--primary);
   white-space: nowrap;
   overflow: hidden;
@@ -116,13 +120,13 @@
   max-width: 100%;
 }
 
-/* Stats Strip */
+/* Stats Strip (Gazette Style) */
 .team-pro-stats-strip {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   background: var(--bg-tertiary);
   border: 1px solid var(--border);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   padding: 8px 4px;
   margin-bottom: 14px;
   text-align: center;
@@ -132,7 +136,7 @@
   display: flex;
   flex-direction: column;
   gap: 1px;
-  border-right: 1px solid var(--border);
+  border-right: 1px dashed var(--border);
 }
 
 .tps-col:last-child {
@@ -140,17 +144,18 @@
 }
 
 .tps-label {
-  font-size: 10px;
+  font-family: var(--font-serif-display);
+  font-size: 9.5px;
   font-weight: 700;
   color: var(--text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
 }
 
 .tps-val {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 13.5px;
-  font-weight: 800;
+  font-family: var(--font-mono-scoreboard);
+  font-size: 14px;
+  font-weight: 700;
   color: var(--text-primary);
 }
 
@@ -160,9 +165,10 @@
   align-items: center;
   justify-content: space-between;
   padding-top: 10px;
-  border-top: 1px solid var(--border);
+  border-top: 1px dashed var(--border);
   font-size: 12px;
   color: var(--text-secondary);
+  font-style: italic;
 }
 
 .team-pro-squad-info {
@@ -186,8 +192,12 @@
   align-items: center;
   gap: 3px;
   color: var(--primary);
-  font-weight: 800;
-  font-size: 12px;
+  font-family: var(--font-serif-display);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-style: normal;
 }
 
 .team-pro-arrow {
@@ -201,19 +211,19 @@
 /* ===== SQUAD VIEW MODE CARD ===== */
 .team-squad-card {
   padding: 18px 20px;
-  background: #FFFFFF !important;
-  border: 1px solid var(--border) !important;
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
+  background: var(--surface) !important;
+  border: 1.5px solid var(--border) !important;
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm), inset 0 0 0 1px rgba(212, 175, 55, 0.25);
   transition: var(--transition);
   cursor: pointer;
   text-align: left;
 }
 
 .team-squad-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 10px 26px rgba(19, 35, 27, 0.1);
-  border-color: var(--border-bright) !important;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--gold) !important;
 }
 
 .tsc-header {
@@ -228,11 +238,12 @@
   width: 40px;
   height: 40px;
   place-items: center;
-  border-radius: 12px;
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 18px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-serif-display);
+  font-size: 17px;
   font-weight: 800;
   flex-shrink: 0;
+  border: 1.5px solid var(--gold);
 }
 
 .tsc-info {
@@ -241,8 +252,9 @@
 }
 
 .tsc-name {
-  font-size: 15px;
-  font-weight: 800;
+  font-family: var(--font-serif-heading);
+  font-size: 16px;
+  font-weight: 700;
   color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
@@ -253,6 +265,7 @@
   font-size: 12px;
   color: var(--text-muted);
   font-weight: 600;
+  font-style: italic;
 }
 
 .tsc-view-btn {
@@ -260,10 +273,10 @@
   width: 28px;
   height: 28px;
   place-items: center;
-  border-radius: 50%;
+  border-radius: var(--radius-sm);
   background: var(--primary-dim);
   color: var(--primary);
-  border: none;
+  border: 1px solid rgba(14, 72, 41, 0.2);
 }
 
 .tsc-roster-preview {
@@ -277,19 +290,20 @@
   align-items: center;
   gap: 4px;
   padding: 3px 8px;
-  background: var(--bg-tertiary);
+  background: var(--bg-secondary);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
+  font-family: var(--font-serif-body);
   font-size: 11.5px;
   font-weight: 600;
   color: var(--text-secondary);
 }
 
 .tsc-num {
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-mono-scoreboard);
   font-size: 10px;
   font-weight: 700;
-  color: var(--text-muted);
+  color: var(--gold);
 }
 
 .tsc-player-more {
@@ -298,7 +312,9 @@
   padding: 3px 8px;
   background: var(--primary-dim);
   border-radius: var(--radius-sm);
-  font-size: 11px;
+  font-family: var(--font-serif-display);
+  font-size: 10.5px;
   font-weight: 700;
   color: var(--primary);
+  border: 1px solid rgba(14, 72, 41, 0.2);
 }

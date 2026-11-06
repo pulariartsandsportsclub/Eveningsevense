@@ -1,4 +1,4 @@
-/* ===== ADMIN LOGIN COMPONENT STYLES ===== */
+/* ===== VINTAGE ADMIN LOGIN COMPONENT STYLES ===== */
 
 .admin-login-wrapper {
   display: flex;
@@ -12,10 +12,10 @@
   width: 100%;
   max-width: 460px;
   background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-xl);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
   padding: 36px 32px;
-  box-shadow: 0 16px 36px rgba(19, 35, 27, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 16px 36px rgba(36, 30, 20, 0.12), inset 0 0 0 1px rgba(212, 175, 55, 0.35);
   position: relative;
   overflow: hidden;
 }
@@ -51,7 +51,10 @@
   height: 100%;
   object-fit: contain;
   border-radius: 50%;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  border: 2px solid var(--gold);
+  padding: 2px;
+  background: #FFFDF9;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
 }
 
 .login-shield-badge {
@@ -62,25 +65,28 @@
   color: #FFFFFF;
   width: 24px;
   height: 24px;
-  border-radius: 50%;
+  border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid var(--surface);
+  border: 1.5px solid var(--gold);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
 .login-title {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 22px;
+  font-family: var(--font-serif-display);
+  font-size: 20px;
   font-weight: 800;
-  color: var(--text-primary);
-  letter-spacing: -0.03em;
+  color: var(--primary);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   margin: 0 0 6px 0;
 }
 
 .login-sub {
+  font-family: var(--font-serif-body);
   font-size: 13px;
+  font-style: italic;
   color: var(--text-muted);
   margin: 0;
 }
