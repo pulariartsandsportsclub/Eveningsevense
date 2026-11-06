@@ -39,7 +39,7 @@ export default function Results() {
       {sorted.length === 0 ? (
         <div className="empty-state">
           <CheckCircle size={40} />
-          <p>No results yet. Enter match results via Admin panel.</p>
+          <p>No match results recorded yet.</p>
         </div>
       ) : (
         <div className="results-list">

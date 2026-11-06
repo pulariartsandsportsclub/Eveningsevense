@@ -1,4 +1,5 @@
 import { useTournament } from '../context/TournamentContext';
+import { useAuth } from '../context/AuthContext';
 import { deduplicateFixturesList, parseStageInfo } from '../utils/bracketProgression';
 import { Trophy, MapPin, Calendar, Clock, CheckCircle2 } from 'lucide-react';
 import './KnockoutBracket.css';
@@ -208,17 +209,22 @@ function BracketMatch({ match, teams = [] }) {
 
 export default function KnockoutBracket() {
   const { fixtures = [], teams = [] } = useTournament();
+  const { isAuthenticated } = useAuth();
 
   if (!fixtures || fixtures.length === 0) {
     return (
       <div className="empty-state" style={{ padding: '56px 24px', textAlign: 'center', background: 'var(--surface)', borderRadius: 'var(--radius-xl)', border: '1px solid var(--border)' }}>
         <h3 style={{ fontSize: '18px', fontWeight: 800, marginBottom: '6px' }}>No Tournament Fixtures Yet</h3>
         <p style={{ color: 'var(--text-muted)', fontSize: '14px', maxWidth: '420px', margin: '0 auto 18px' }}>
-          Add teams or schedule your first knockout matches in the Admin dashboard to build the tournament bracket.
+          {isAuthenticated
+            ? 'Add teams or schedule your first knockout matches in the Admin dashboard to build the tournament bracket.'
+            : 'Fixtures and tournament bracket will appear once scheduled by tournament officials.'}
         </p>
-        <a href="/admin?tab=teams" className="btn btn-primary btn-sm" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-          Add Teams in Admin →
-        </a>
+        {isAuthenticated && (
+          <a href="/admin?tab=teams" className="btn btn-primary btn-sm" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+            Add Teams in Admin →
+          </a>
+        )}
       </div>
     );
   }

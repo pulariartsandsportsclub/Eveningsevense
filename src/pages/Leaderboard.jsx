@@ -23,7 +23,7 @@ export default function Leaderboard() {
       {sorted.length === 0 ? (
         <div className="empty-state">
           <BarChart2 size={40} />
-          <p>No scorer data yet. Add scorers via Admin panel.</p>
+          <p>No scorer data recorded yet.</p>
         </div>
       ) : (
         <div className="leaderboard-table glass-card">

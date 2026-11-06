@@ -78,7 +78,7 @@ export default function Fixtures() {
           {sortedDates.length === 0 ? (
             <div className="empty-state">
               <Calendar size={40} />
-              <p>No fixtures found. Add fixtures via Admin panel.</p>
+              <p>No fixtures found yet.</p>
             </div>
           ) : (
             sortedDates.map(date => (

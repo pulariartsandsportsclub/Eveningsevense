@@ -3,17 +3,23 @@ import { Trophy, Users, Calendar, CheckCircle, BarChart2, Settings } from 'lucid
 import { useAuth } from '../context/AuthContext';
 import './Header.css';
 
-const NAV_ITEMS = [
+const PUBLIC_NAV_ITEMS = [
   { to: '/', label: 'Dashboard', icon: Trophy, end: true },
   { to: '/teams', label: 'Teams', icon: Users },
   { to: '/fixtures', label: 'Fixtures', icon: Calendar },
   { to: '/results', label: 'Results', icon: CheckCircle },
   { to: '/leaderboard', label: 'Leaderboard', icon: BarChart2 },
-  { to: '/admin', label: 'Admin', icon: Settings },
 ];
+
+const ADMIN_NAV_ITEM = { to: '/admin', label: 'Admin', icon: Settings };
 
 export default function Header() {
   const { isAuthenticated } = useAuth();
+
+  // Show Admin button in navigation only if the administrator is currently logged in
+  const navItems = isAuthenticated
+    ? [...PUBLIC_NAV_ITEMS, ADMIN_NAV_ITEM]
+    : PUBLIC_NAV_ITEMS;
 
   return (
     <>
@@ -30,7 +36,7 @@ export default function Header() {
 
           <div className="header-right">
             <nav className="header-nav">
-              {NAV_ITEMS.map(({ to, label, icon: Icon, end }) => (
+              {navItems.map(({ to, label, icon: Icon, end }) => (
                 <NavLink
                   key={to}
                   to={to}
@@ -51,7 +57,7 @@ export default function Header() {
 
       {/* Mobile Native-Style Bottom Navigation Bar */}
       <nav className="mobile-bottom-nav" aria-label="Mobile Navigation">
-        {NAV_ITEMS.map(({ to, label, icon: Icon, end }) => (
+        {navItems.map(({ to, label, icon: Icon, end }) => (
           <NavLink
             key={to}
             to={to}
