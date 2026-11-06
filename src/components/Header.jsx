@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { Trophy, Users, Calendar, CheckCircle, BarChart2, Settings } from 'lucide-react';
+import { Trophy, Users, Calendar, CheckCircle, Settings } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import './Header.css';
 
@@ -8,7 +8,6 @@ const PUBLIC_NAV_ITEMS = [
   { to: '/teams', label: 'Teams', icon: Users },
   { to: '/fixtures', label: 'Fixtures', icon: Calendar },
   { to: '/results', label: 'Results', icon: CheckCircle },
-  { to: '/leaderboard', label: 'Leaderboard', icon: BarChart2 },
 ];
 
 const ADMIN_NAV_ITEM = { to: '/admin', label: 'Admin', icon: Settings };
@@ -51,6 +50,15 @@ export default function Header() {
                 </NavLink>
               ))}
             </nav>
+
+            {/* Mobile Header Admin shortcut button when authenticated */}
+            {isAuthenticated && (
+              <NavLink to="/admin" className="mobile-admin-header-btn" title="Admin Portal">
+                <Settings size={15} />
+                <span>Admin</span>
+                <span className="admin-active-indicator" />
+              </NavLink>
+            )}
           </div>
         </div>
       </header>
